@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 456);
+/******/ 	return __webpack_require__(__webpack_require__.s = 460);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -441,13 +441,13 @@ exports.executeRequest = executeRequest;
 
 /***/ }),
 
-/***/ 456:
+/***/ 460:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const function_03_http_status_1 = __webpack_require__(457);
+const function_03_http_status_1 = __webpack_require__(461);
 const stripe_server_1 = __webpack_require__(268);
 const run = function (...args) {
     function_03_http_status_1.runFunction.apply(null, [stripe_server_1.config, ...args]);
@@ -458,7 +458,7 @@ module.exports = global.__run;
 
 /***/ }),
 
-/***/ 457:
+/***/ 461:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -500,6 +500,7 @@ exports.runFunction = function_builder_1.build_runFunction_http(buildFunction, (
             subscriptionStatus: data.subscriptionStatus,
             deliverableStatus: data.deliverableStatus,
             deliverableStatus_executionResult: data.deliverableStatus_executionResult,
+            error: data.error,
         },
         headers: {
             'Content-Type': 'application/json',
