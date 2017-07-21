@@ -79702,6 +79702,8 @@ function saveEntity(tableName, partitionKey, rowKey, values, ...aliases) {
             rowKey = rowKey.toLowerCase();
             aliases = aliases.map(x => x.toLowerCase());
         }
+        // Ensure Table Exists
+        yield async_it_1.asyncIt(cb => tableService.createTableIfNotExists(tableName, cb));
         // Save Data
         const entity = convertToEntity(tableService, partitionKey, rowKey, values);
         const result = yield async_it_1.asyncIt(cb => tableService.insertOrMergeEntity(tableName, entity, {}, cb));
@@ -79837,14 +79839,15 @@ var GetUserResultError;
     GetUserResultError["EmailBelongsToAnotherUser_RequireLogin"] = "EmailBelongsToAnotherUser_RequireLogin";
 })(GetUserResultError = exports.GetUserResultError || (exports.GetUserResultError = {}));
 class ServerConfig {
-    constructor(clientConfig, runtimeConfig, default_storageConnectionString_AppSettingName = 'AZURE_STORAGE_CONNECTION_STRING', stripeSecretKey_AppSettingName = 'STRIPE_SECRET_KEY', stripeWebhookSigningSecret_AppSettingName = 'STRIPE_WEBHOOK_SIGNING_SECRET') {
+    constructor(clientConfig, runtimeConfig, stripeSecretKey_AppSettingName = 'STRIPE_SECRET_KEY', stripeWebhookSigningSecret_AppSettingName = 'STRIPE_WEBHOOK_SIGNING_SECRET') {
         this.clientConfig = clientConfig;
         this.runtimeConfig = runtimeConfig;
-        this.default_storageConnectionString_AppSettingName = default_storageConnectionString_AppSettingName;
         this.stripeSecretKey_AppSettingName = stripeSecretKey_AppSettingName;
         this.stripeWebhookSigningSecret_AppSettingName = stripeWebhookSigningSecret_AppSettingName;
-        this.runtime = this.runtimeConfig;
+        // The SDK Depends on this setting (It cannot be changed with ensuring the SDK requires it to be set)
+        this.default_storageConnectionString_AppSettingName = 'AZURE_STORAGE_CONNECTION_STRING';
         this.storageConnection = this.default_storageConnectionString_AppSettingName;
+        this.runtime = this.runtimeConfig;
         this.submit_route = this.clientConfig.submit_route;
         this.status_route = this.clientConfig.status_route;
         this.webhook_route = 'webhook/stripe';
@@ -81402,14 +81405,19 @@ exports.runFunction = function_builder_1.build_runFunction_common(buildFunction,
     context.log('START');
     const q = context.bindings.inProcessQueueTrigger;
     const saveData = (data) => __awaiter(this, void 0, void 0, function* () {
-        // Log History
-        const b = config.getBinding_stripeCheckoutTable_fromTrigger(q);
-        const changedRowKey = `${b.rowKey}_at-${Date.now()}`;
-        context.log('saveData START', { paymentStatus: data.paymentStatus, data, b, changedRowKey });
-        yield exports.deps.saveEntity(b.tableName, b.partitionKey, changedRowKey, Object.assign({}, data, { isLog: true }));
-        // Save Main
-        yield exports.deps.saveEntity(b.tableName, b.partitionKey, b.rowKey, data);
-        context.log('saveData END', { paymentStatus: data.paymentStatus, data, b, changedRowKey });
+        try {
+            // Log History
+            const b = config.getBinding_stripeCheckoutTable_fromTrigger(q);
+            const changedRowKey = `${b.rowKey}_at-${Date.now()}`;
+            context.log('saveData START', { paymentStatus: data.paymentStatus, data, b, changedRowKey });
+            yield exports.deps.saveEntity(b.tableName, b.partitionKey, changedRowKey, Object.assign({}, data, { isLog: true }));
+            // Save Main
+            yield exports.deps.saveEntity(b.tableName, b.partitionKey, b.rowKey, data);
+            context.log('saveData END', { paymentStatus: data.paymentStatus, data, b, changedRowKey });
+        }
+        catch (error) {
+            return context.done({ message: 'saveData FAILED', error });
+        }
     });
     // Restart the process only if the user required login
     if (context.bindings.inStripeCheckoutTable) {

@@ -222,14 +222,15 @@ var GetUserResultError;
     GetUserResultError["EmailBelongsToAnotherUser_RequireLogin"] = "EmailBelongsToAnotherUser_RequireLogin";
 })(GetUserResultError = exports.GetUserResultError || (exports.GetUserResultError = {}));
 class ServerConfig {
-    constructor(clientConfig, runtimeConfig, default_storageConnectionString_AppSettingName = 'AZURE_STORAGE_CONNECTION_STRING', stripeSecretKey_AppSettingName = 'STRIPE_SECRET_KEY', stripeWebhookSigningSecret_AppSettingName = 'STRIPE_WEBHOOK_SIGNING_SECRET') {
+    constructor(clientConfig, runtimeConfig, stripeSecretKey_AppSettingName = 'STRIPE_SECRET_KEY', stripeWebhookSigningSecret_AppSettingName = 'STRIPE_WEBHOOK_SIGNING_SECRET') {
         this.clientConfig = clientConfig;
         this.runtimeConfig = runtimeConfig;
-        this.default_storageConnectionString_AppSettingName = default_storageConnectionString_AppSettingName;
         this.stripeSecretKey_AppSettingName = stripeSecretKey_AppSettingName;
         this.stripeWebhookSigningSecret_AppSettingName = stripeWebhookSigningSecret_AppSettingName;
-        this.runtime = this.runtimeConfig;
+        // The SDK Depends on this setting (It cannot be changed with ensuring the SDK requires it to be set)
+        this.default_storageConnectionString_AppSettingName = 'AZURE_STORAGE_CONNECTION_STRING';
         this.storageConnection = this.default_storageConnectionString_AppSettingName;
+        this.runtime = this.runtimeConfig;
         this.submit_route = this.clientConfig.submit_route;
         this.status_route = this.clientConfig.status_route;
         this.webhook_route = 'webhook/stripe';
