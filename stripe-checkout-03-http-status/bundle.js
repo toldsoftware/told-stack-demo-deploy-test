@@ -578,20 +578,22 @@ function assignPartial(t, p) {
     return t;
 }
 exports.assignPartial = assignPartial;
-function partialDeepCompare(actual, expected) {
-    for (let k in expected) {
-        const e = expected[k];
-        const a = actual[k];
-        if (e === a) {
-            continue;
-        }
-        if ((e === undefined || e === null) && (a === undefined || a === null)) {
-            continue;
-        }
-        if (typeof e === 'object' && typeof a === 'object' && partialDeepCompare(a, e)) {
-            continue;
-        }
+function partialDeepCompare(a, e) {
+    if (e === a) {
+        return true;
+    }
+    if ((e === undefined || e === null) && (a === undefined || a === null)) {
+        return true;
+    }
+    if ((e === undefined || e === null || a === undefined || a === null)) {
         return false;
+    }
+    for (let k in e) {
+        const e2 = e[k];
+        const a2 = a[k];
+        if (!partialDeepCompare(a[k], e[k])) {
+            return false;
+        }
     }
     return true;
 }

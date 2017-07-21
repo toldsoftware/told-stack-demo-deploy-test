@@ -106,10 +106,10 @@ if (nodeVersion.major === 0 && nodeVersion.minor > 8 && !(nodeVersion.minor > 10
   throw new Error('The Microsoft Azure node SDK does not work with node versions > 0.9.0 and < 0.10.3. Please upgrade to node >= 0.10.3');
 }
 
-exports.xmlbuilder = __webpack_require__(50);
+exports.xmlbuilder = __webpack_require__(49);
 exports.xml2js = __webpack_require__(72);
 
-exports.Logger = __webpack_require__(51);
+exports.Logger = __webpack_require__(50);
 exports.WebResource = __webpack_require__(73);
 
 // Services
@@ -123,7 +123,7 @@ exports.AclResult = __webpack_require__(220);
 // Filters
 exports.LinearRetryPolicyFilter = __webpack_require__(221);
 exports.ExponentialRetryPolicyFilter = __webpack_require__(222);
-exports.RetryPolicyFilter = __webpack_require__(66);
+exports.RetryPolicyFilter = __webpack_require__(65);
 
 // Signing
 exports.SharedAccessSignature = __webpack_require__(109);
@@ -143,7 +143,7 @@ exports.SR = __webpack_require__(14);
 exports.date = __webpack_require__(227);
 exports.ISO8061Date = __webpack_require__(110);
 exports.util = __webpack_require__(12);
-exports.validate = __webpack_require__(65);
+exports.validate = __webpack_require__(64);
 exports.StorageUtilities = __webpack_require__(39);
 exports.AccessCondition = __webpack_require__(228);
 
@@ -4679,7 +4679,7 @@ var KeyParseError = errs.KeyParseError;
 var formats = {};
 formats['auto'] = __webpack_require__(86);
 formats['pem'] = __webpack_require__(22);
-formats['pkcs1'] = __webpack_require__(62);
+formats['pkcs1'] = __webpack_require__(61);
 formats['pkcs8'] = __webpack_require__(34);
 formats['rfc4253'] = __webpack_require__(28);
 formats['ssh'] = __webpack_require__(88);
@@ -5139,7 +5139,7 @@ var KeyEncryptedError = errs.KeyEncryptedError;
 var formats = {};
 formats['auto'] = __webpack_require__(86);
 formats['pem'] = __webpack_require__(22);
-formats['pkcs1'] = __webpack_require__(62);
+formats['pkcs1'] = __webpack_require__(61);
 formats['pkcs8'] = __webpack_require__(34);
 formats['rfc4253'] = __webpack_require__(28);
 formats['ssh-private'] = __webpack_require__(46);
@@ -6659,7 +6659,7 @@ var utils = __webpack_require__(6);
 var Key = __webpack_require__(9);
 var PrivateKey = __webpack_require__(11);
 
-var pkcs1 = __webpack_require__(62);
+var pkcs1 = __webpack_require__(61);
 var pkcs8 = __webpack_require__(34);
 var sshpriv = __webpack_require__(46);
 var rfc4253 = __webpack_require__(28);
@@ -10841,12 +10841,12 @@ var objectKeys = Object.keys || function (obj) {
 module.exports = Duplex;
 
 /*<replacement>*/
-var processNextTick = __webpack_require__(55);
+var processNextTick = __webpack_require__(54);
 /*</replacement>*/
 
 /*<replacement>*/
-var util = __webpack_require__(56);
-util.inherits = __webpack_require__(57);
+var util = __webpack_require__(55);
+util.inherits = __webpack_require__(56);
 /*</replacement>*/
 
 var Readable = __webpack_require__(137);
@@ -14473,7 +14473,7 @@ module.exports = _setExports(process.env.NODE_NDEBUG);
 // Copyright 2012 Joyent, Inc.  All rights reserved.
 
 var assert = __webpack_require__(43);
-var sshpk = __webpack_require__(59);
+var sshpk = __webpack_require__(58);
 var util = __webpack_require__(0);
 
 var HASH_ALGOS = {
@@ -15681,98 +15681,6 @@ module.exports = BlobUtilities;
 /* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
-
-// export function objectToValueIterator<T>(obj: { [key: string]: T }): { [key: string]: T } & Iterable<T> {
-Object.defineProperty(exports, "__esModule", { value: true });
-//     const o = obj as any;
-//     o[Symbol.iterator] = () => {
-//         let keys = Object.getOwnPropertyNames(obj);
-//         let i = 0;
-//         return {
-//             next: () => {
-//                 const key = keys[i++];
-//                 const value = obj[key];
-//                 return {
-//                     value,
-//                     done: i >= keys.length
-//                 };
-//             }
-//         };
-//     };
-//     return o;
-// }
-// export function objectToKeyValueIterator<T>(obj: { [key: string]: T }): { [key: string]: T } & Iterable<{ key: string, value: T }> {
-//     const o = obj as any;
-//     o[Symbol.iterator] = () => {
-//         let keys = Object.getOwnPropertyNames(obj);
-//         let i = 0;
-//         return {
-//             next: () => {
-//                 const key = keys[i++];
-//                 const value = obj[key];
-//                 return {
-//                     value: { key, value },
-//                     done: i >= keys.length
-//                 };
-//             }
-//         };
-//     };
-//     return o;
-// }
-function group(items, getKey) {
-    const g = items.reduce((o, x) => {
-        const k = getKey(x);
-        const group = o[k] = o[k] || { items: [] };
-        group.items.push(x);
-        return o;
-    }, {});
-    //return objectToValueIterator(g);
-    return g;
-}
-exports.group = group;
-function groupToArray(items, getKey) {
-    const g = group(items, getKey);
-    return Object.getOwnPropertyNames(g).map(k => g[k].items);
-}
-exports.groupToArray = groupToArray;
-function assignPartial(t, p) {
-    for (let k in p) {
-        if (p.hasOwnProperty(k)) {
-            t[k] = p[k];
-        }
-    }
-    return t;
-}
-exports.assignPartial = assignPartial;
-function partialDeepCompare(actual, expected) {
-    for (let k in expected) {
-        const e = expected[k];
-        const a = actual[k];
-        if (e === a) {
-            continue;
-        }
-        if ((e === undefined || e === null) && (a === undefined || a === null)) {
-            continue;
-        }
-        if (typeof e === 'object' && typeof a === 'object' && partialDeepCompare(a, e)) {
-            continue;
-        }
-        return false;
-    }
-    return true;
-}
-exports.partialDeepCompare = partialDeepCompare;
-function deepCompare(actual, expected) {
-    return partialDeepCompare(actual, expected) && partialDeepCompare(expected, actual);
-}
-exports.deepCompare = deepCompare;
-
-
-/***/ }),
-/* 50 */
-/***/ (function(module, exports, __webpack_require__) {
-
 // Generated by CoffeeScript 1.3.3
 (function() {
   var XMLBuilder;
@@ -15791,7 +15699,7 @@ exports.deepCompare = deepCompare;
 
 
 /***/ }),
-/* 51 */
+/* 50 */
 /***/ (function(module, exports) {
 
 // 
@@ -15945,7 +15853,7 @@ module.exports = Logger;
 
 
 /***/ }),
-/* 52 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16038,13 +15946,13 @@ module.exports = function extend() {
 
 
 /***/ }),
-/* 53 */
+/* 52 */
 /***/ (function(module, exports) {
 
 module.exports = require("net");
 
 /***/ }),
-/* 54 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16125,7 +16033,7 @@ exports.defer                 = deferMethod()
 
 
 /***/ }),
-/* 55 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16175,7 +16083,7 @@ function nextTick(fn, arg1, arg2, arg3) {
 
 
 /***/ }),
-/* 56 */
+/* 55 */
 /***/ (function(module, exports) {
 
 // Copyright Joyent, Inc. and other Node contributors.
@@ -16288,7 +16196,7 @@ function objectToString(o) {
 
 
 /***/ }),
-/* 57 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 try {
@@ -16301,7 +16209,7 @@ try {
 
 
 /***/ }),
-/* 58 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // Load modules
@@ -16433,7 +16341,7 @@ exports.timestampMessage = function (credentials, localtimeOffsetMsec) {
 
 
 /***/ }),
-/* 59 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // Copyright 2015 Joyent, Inc.
@@ -16478,7 +16386,7 @@ module.exports = {
 
 
 /***/ }),
-/* 60 */
+/* 59 */
 /***/ (function(module, exports) {
 
 // Copyright 2011 Mark Cavage <mcavage@gmail.com> All rights reserved.
@@ -16497,7 +16405,7 @@ module.exports = {
 
 
 /***/ }),
-/* 61 */
+/* 60 */
 /***/ (function(module, exports) {
 
 // Copyright 2011 Mark Cavage <mcavage@gmail.com> All rights reserved.
@@ -16539,7 +16447,7 @@ module.exports = {
 
 
 /***/ }),
-/* 62 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // Copyright 2015 Joyent, Inc.
@@ -16865,7 +16773,7 @@ function writePkcs1ECDSAPrivate(der, key) {
 
 
 /***/ }),
-/* 63 */
+/* 62 */
 /***/ (function(module, exports) {
 
 function Caseless (dict) {
@@ -16937,7 +16845,7 @@ module.exports.httpify = function (resp, headers) {
 
 
 /***/ }),
-/* 64 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_RESULT__;//     uuid.js
@@ -17216,7 +17124,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__;//     uuid.js
 
 
 /***/ }),
-/* 65 */
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // 
@@ -17720,7 +17628,7 @@ exports.ArgumentValidator = ArgumentValidator;
 exports.validateArgs = validateArgs;
 
 /***/ }),
-/* 66 */
+/* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // 
@@ -17959,7 +17867,7 @@ module.exports = RetryPolicyFilter;
 
 
 /***/ }),
-/* 67 */
+/* 66 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // 
@@ -18026,7 +17934,7 @@ exports.getEtag = function (entity) {
 };
 
 /***/ }),
-/* 68 */
+/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // 
@@ -18053,7 +17961,7 @@ azureCommon.FileReadStream = __webpack_require__(234);
 module.exports = azureCommon;
 
 /***/ }),
-/* 69 */
+/* 68 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // 
@@ -18352,7 +18260,7 @@ module.exports = RangeStream;
 
 
 /***/ }),
-/* 70 */
+/* 69 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -18677,6 +18585,100 @@ if (ret.isNode) ret.toFastProperties(process);
 
 try {throw new Error(); } catch (e) {ret.lastLineError = e;}
 module.exports = ret;
+
+
+/***/ }),
+/* 70 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+// export function objectToValueIterator<T>(obj: { [key: string]: T }): { [key: string]: T } & Iterable<T> {
+Object.defineProperty(exports, "__esModule", { value: true });
+//     const o = obj as any;
+//     o[Symbol.iterator] = () => {
+//         let keys = Object.getOwnPropertyNames(obj);
+//         let i = 0;
+//         return {
+//             next: () => {
+//                 const key = keys[i++];
+//                 const value = obj[key];
+//                 return {
+//                     value,
+//                     done: i >= keys.length
+//                 };
+//             }
+//         };
+//     };
+//     return o;
+// }
+// export function objectToKeyValueIterator<T>(obj: { [key: string]: T }): { [key: string]: T } & Iterable<{ key: string, value: T }> {
+//     const o = obj as any;
+//     o[Symbol.iterator] = () => {
+//         let keys = Object.getOwnPropertyNames(obj);
+//         let i = 0;
+//         return {
+//             next: () => {
+//                 const key = keys[i++];
+//                 const value = obj[key];
+//                 return {
+//                     value: { key, value },
+//                     done: i >= keys.length
+//                 };
+//             }
+//         };
+//     };
+//     return o;
+// }
+function group(items, getKey) {
+    const g = items.reduce((o, x) => {
+        const k = getKey(x);
+        const group = o[k] = o[k] || { items: [] };
+        group.items.push(x);
+        return o;
+    }, {});
+    //return objectToValueIterator(g);
+    return g;
+}
+exports.group = group;
+function groupToArray(items, getKey) {
+    const g = group(items, getKey);
+    return Object.getOwnPropertyNames(g).map(k => g[k].items);
+}
+exports.groupToArray = groupToArray;
+function assignPartial(t, p) {
+    for (let k in p) {
+        if (p.hasOwnProperty(k)) {
+            t[k] = p[k];
+        }
+    }
+    return t;
+}
+exports.assignPartial = assignPartial;
+function partialDeepCompare(a, e) {
+    if (e === a) {
+        return true;
+    }
+    if ((e === undefined || e === null) && (a === undefined || a === null)) {
+        return true;
+    }
+    if ((e === undefined || e === null || a === undefined || a === null)) {
+        return false;
+    }
+    for (let k in e) {
+        const e2 = e[k];
+        const a2 = a[k];
+        if (!partialDeepCompare(a[k], e[k])) {
+            return false;
+        }
+    }
+    return true;
+}
+exports.partialDeepCompare = partialDeepCompare;
+function deepCompare(actual, expected) {
+    return partialDeepCompare(actual, expected) && partialDeepCompare(expected, actual);
+}
+exports.deepCompare = deepCompare;
 
 
 /***/ }),
@@ -24251,7 +24253,7 @@ exports.matchedSpecification = function (settings) {
 
 // Module dependencies.
 var _ = __webpack_require__(5);
-var xmlbuilder = __webpack_require__(50);
+var xmlbuilder = __webpack_require__(49);
 
 var Constants = __webpack_require__(4);
 var ServicePropertiesConstants = Constants.ServicePropertiesConstants;
@@ -25645,7 +25647,7 @@ var SR = azureCommon.SR;
 var Constants = azureCommon.Constants;
 var HeaderConstants = Constants.HeaderConstants;
 var TableConstants = Constants.TableConstants;
-var entityResult = __webpack_require__(67);
+var entityResult = __webpack_require__(66);
 
 exports = module.exports;
 
@@ -27011,7 +27013,7 @@ exports.createQueueServiceWithSas = function(hostUri, sasToken) {
 * @ignore
 */
 
-var azureCommon = __webpack_require__(68);
+var azureCommon = __webpack_require__(67);
 var StorageServiceClient = azureCommon.StorageServiceClient;
 var SharedKey = azureCommon.SharedKey;
 /**
@@ -27426,7 +27428,7 @@ var RequestLocationMode = Constants.RequestLocationMode;
 
 // Models requires
 var TableResult = __webpack_require__(230);
-var entityResult = __webpack_require__(67);
+var entityResult = __webpack_require__(66);
 var BatchResult = __webpack_require__(231);
 var ServiceStatsParser = azureCommon.ServiceStatsParser;
 var AclResult = azureCommon.AclResult;
@@ -30594,7 +30596,7 @@ var Parser = __webpack_require__(216);
 
 var Md5Wrapper = __webpack_require__(24);
 var azureutil = __webpack_require__(12);
-var validate = __webpack_require__(65);
+var validate = __webpack_require__(64);
 var SR = __webpack_require__(14);
 var WebResource = __webpack_require__(73);
 var BufferStream = __webpack_require__(104);
@@ -30616,7 +30618,7 @@ var StorageServiceClientConstants = Constants.StorageServiceClientConstants;
 var defaultRequestLocationMode = Constants.RequestLocationMode.PRIMARY_ONLY;
 var RequestLocationMode = Constants.RequestLocationMode;
 
-var Logger = __webpack_require__(51);
+var Logger = __webpack_require__(50);
 var errors = __webpack_require__(20);
 var ArgumentError = errors.ArgumentError;
 var ArgumentNullError = errors.ArgumentNullError;
@@ -31953,9 +31955,9 @@ module.exports = __webpack_require__(128);
 
 
 
-var extend                = __webpack_require__(52)
+var extend                = __webpack_require__(51)
   , cookies               = __webpack_require__(74)
-  , helpers               = __webpack_require__(54)
+  , helpers               = __webpack_require__(53)
 
 var isFunction            = helpers.isFunction
   , paramsHaveRequestBody = helpers.paramsHaveRequestBody
@@ -32132,7 +32134,7 @@ Object.defineProperty(request, 'debug', {
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-var net = __webpack_require__(53);
+var net = __webpack_require__(52);
 var urlParse = __webpack_require__(8).parse;
 var pubsuffix = __webpack_require__(75);
 var Store = __webpack_require__(77).Store;
@@ -33748,13 +33750,13 @@ var http = __webpack_require__(17)
   , httpSignature = __webpack_require__(152)
   , mime = __webpack_require__(91)
   , stringstream = __webpack_require__(167)
-  , caseless = __webpack_require__(63)
+  , caseless = __webpack_require__(62)
   , ForeverAgent = __webpack_require__(168)
   , FormData = __webpack_require__(169)
-  , extend = __webpack_require__(52)
+  , extend = __webpack_require__(51)
   , isstream = __webpack_require__(94)
   , isTypedArray = __webpack_require__(174).strict
-  , helpers = __webpack_require__(54)
+  , helpers = __webpack_require__(53)
   , cookies = __webpack_require__(74)
   , getProxyFromURI = __webpack_require__(175)
   , Querystring = __webpack_require__(176).Querystring
@@ -35464,7 +35466,7 @@ if (typeof Object.create === 'function') {
 module.exports = Readable;
 
 /*<replacement>*/
-var processNextTick = __webpack_require__(55);
+var processNextTick = __webpack_require__(54);
 /*</replacement>*/
 
 /*<replacement>*/
@@ -35499,8 +35501,8 @@ var Stream;
 var Buffer = __webpack_require__(18).Buffer;
 
 /*<replacement>*/
-var util = __webpack_require__(56);
-util.inherits = __webpack_require__(57);
+var util = __webpack_require__(55);
+util.inherits = __webpack_require__(56);
 /*</replacement>*/
 
 /*<replacement>*/
@@ -36365,7 +36367,7 @@ module.exports = Array.isArray || function (arr) {
 module.exports = Writable;
 
 /*<replacement>*/
-var processNextTick = __webpack_require__(55);
+var processNextTick = __webpack_require__(54);
 /*</replacement>*/
 
 /*<replacement>*/
@@ -36379,8 +36381,8 @@ var Buffer = __webpack_require__(18).Buffer;
 Writable.WritableState = WritableState;
 
 /*<replacement>*/
-var util = __webpack_require__(56);
-util.inherits = __webpack_require__(57);
+var util = __webpack_require__(55);
+util.inherits = __webpack_require__(56);
 /*</replacement>*/
 
 /*<replacement>*/
@@ -36896,7 +36898,7 @@ exports.sntp = __webpack_require__(81);
 
 exports.server = __webpack_require__(146);
 exports.client = __webpack_require__(148);
-exports.crypto = __webpack_require__(58);
+exports.crypto = __webpack_require__(57);
 exports.utils = __webpack_require__(42);
 
 exports.uri = {
@@ -37483,7 +37485,7 @@ module.exports = require("dns");
 var Boom = __webpack_require__(40);
 var Hoek = __webpack_require__(41);
 var Cryptiles = __webpack_require__(82);
-var Crypto = __webpack_require__(58);
+var Crypto = __webpack_require__(57);
 var Utils = __webpack_require__(42);
 
 
@@ -38076,7 +38078,7 @@ module.exports = {
 var Url = __webpack_require__(8);
 var Hoek = __webpack_require__(41);
 var Cryptiles = __webpack_require__(82);
-var Crypto = __webpack_require__(58);
+var Crypto = __webpack_require__(57);
 var Utils = __webpack_require__(42);
 
 
@@ -39641,8 +39643,8 @@ module.exports = {
 
 // Copyright 2011 Mark Cavage <mcavage@gmail.com> All rights reserved.
 
-var errors = __webpack_require__(60);
-var types = __webpack_require__(61);
+var errors = __webpack_require__(59);
+var types = __webpack_require__(60);
 
 var Reader = __webpack_require__(156);
 var Writer = __webpack_require__(157);
@@ -39676,8 +39678,8 @@ for (var e in errors) {
 
 var assert = __webpack_require__(25);
 
-var ASN1 = __webpack_require__(61);
-var errors = __webpack_require__(60);
+var ASN1 = __webpack_require__(60);
+var errors = __webpack_require__(59);
 
 
 ///--- Globals
@@ -39942,8 +39944,8 @@ module.exports = Reader;
 // Copyright 2011 Mark Cavage <mcavage@gmail.com> All rights reserved.
 
 var assert = __webpack_require__(25);
-var ASN1 = __webpack_require__(61);
-var errors = __webpack_require__(60);
+var ASN1 = __webpack_require__(60);
+var errors = __webpack_require__(59);
 
 
 ///--- Globals
@@ -40678,7 +40680,7 @@ var assert = __webpack_require__(43);
 var crypto = __webpack_require__(1);
 var http = __webpack_require__(17);
 var util = __webpack_require__(0);
-var sshpk = __webpack_require__(59);
+var sshpk = __webpack_require__(58);
 var jsprim = __webpack_require__(161);
 var utils = __webpack_require__(44);
 
@@ -42265,7 +42267,7 @@ return exports;
 
 var assert = __webpack_require__(43);
 var crypto = __webpack_require__(1);
-var sshpk = __webpack_require__(59);
+var sshpk = __webpack_require__(58);
 var utils = __webpack_require__(44);
 
 var HASH_ALGOS = utils.HASH_ALGOS;
@@ -51186,7 +51188,7 @@ ForeverAgent.SSL = ForeverAgentSSL
 
 var util = __webpack_require__(0)
   , Agent = __webpack_require__(17).Agent
-  , net = __webpack_require__(53)
+  , net = __webpack_require__(52)
   , tls = __webpack_require__(92)
   , AgentSSL = __webpack_require__(29).Agent
   
@@ -58022,7 +58024,7 @@ module.exports = function (str, opts) {
 var fs = __webpack_require__(30)
 var qs = __webpack_require__(21)
 var validate = __webpack_require__(180)
-var extend = __webpack_require__(52)
+var extend = __webpack_require__(51)
 
 function Har (request) {
   this.request = request
@@ -60024,9 +60026,9 @@ exports['utc-millisec'] = /^[0-9]{1,15}\.?[0-9]{0,15}$/
 "use strict";
 
 
-var caseless = __webpack_require__(63)
-  , uuid = __webpack_require__(64)
-  , helpers = __webpack_require__(54)
+var caseless = __webpack_require__(62)
+  , uuid = __webpack_require__(63)
+  , helpers = __webpack_require__(53)
 
 var md5 = helpers.md5
   , toBase64 = helpers.toBase64
@@ -60201,8 +60203,8 @@ exports.Auth = Auth
 
 var url = __webpack_require__(8)
   , qs = __webpack_require__(95)
-  , caseless = __webpack_require__(63)
-  , uuid = __webpack_require__(64)
+  , caseless = __webpack_require__(62)
+  , uuid = __webpack_require__(63)
   , oauth = __webpack_require__(209)
   , crypto = __webpack_require__(1)
 
@@ -60495,7 +60497,7 @@ exports.generateBase = generateBase
 "use strict";
 
 
-var uuid = __webpack_require__(64)
+var uuid = __webpack_require__(63)
   , CombinedStream = __webpack_require__(93)
   , isstream = __webpack_require__(94)
 
@@ -60957,7 +60959,7 @@ exports.Tunnel = Tunnel
 "use strict";
 
 
-var net = __webpack_require__(53)
+var net = __webpack_require__(52)
   , tls = __webpack_require__(92)
   , http = __webpack_require__(17)
   , https = __webpack_require__(29)
@@ -61810,7 +61812,7 @@ var ServiceSettings = __webpack_require__(105);
 var Constants = __webpack_require__(4);
 var StorageServiceClientConstants = Constants.StorageServiceClientConstants;
 var ConnectionStringKeys = Constants.ConnectionStringKeys;
-var Validate = __webpack_require__(65);
+var Validate = __webpack_require__(64);
 var SR = __webpack_require__(14);
 
 var useDevelopmentStorageSetting = ServiceSettings.setting(ConnectionStringKeys.USE_DEVELOPMENT_STORAGE_NAME, true);
@@ -62266,7 +62268,7 @@ exports.parse = function (serviceStatsXml) {
 
 // Module dependencies.
 var _ = __webpack_require__(5);
-var xmlbuilder = __webpack_require__(50);
+var xmlbuilder = __webpack_require__(49);
 
 var azureutil = __webpack_require__(12);
 var ISO8061Date = __webpack_require__(110);
@@ -62393,7 +62395,7 @@ exports.parse = function (signedIdentifiersXml) {
 //
 
  
-var RetryPolicyFilter = __webpack_require__(66);
+var RetryPolicyFilter = __webpack_require__(65);
 
 /**
 * Creates a new LinearRetryPolicyFilter instance.
@@ -62476,7 +62478,7 @@ module.exports = LinearRetryPolicyFilter;
 
 
 
-var RetryPolicyFilter = __webpack_require__(66);
+var RetryPolicyFilter = __webpack_require__(65);
 /**
 * Creates a new 'ExponentialRetryPolicyFilter' instance.
 * @class
@@ -62582,7 +62584,7 @@ var EventEmitter = __webpack_require__(13).EventEmitter;
 var os = __webpack_require__(101);
 
 var azureutil = __webpack_require__(12);
-var Logger = __webpack_require__(51);
+var Logger = __webpack_require__(50);
 var Constants = __webpack_require__(4);
 var errors = __webpack_require__(20);
 var ArgumentError = errors.ArgumentError;
@@ -63854,7 +63856,7 @@ var HeaderConstants = Constants.HeaderConstants;
 var TableConstants = Constants.TableConstants;
 
 var RequestHandler = __webpack_require__(112);
-var entityResult = __webpack_require__(67);
+var entityResult = __webpack_require__(66);
 
 /**
 * Creates a new BatchResult.
@@ -64297,7 +64299,7 @@ module.exports = TableBatch;
 // 
 
 // Module dependencies.
-var azureCommon = __webpack_require__(68);
+var azureCommon = __webpack_require__(67);
 var BlobService = __webpack_require__(235);
 var extend = __webpack_require__(19);
 var fs = __webpack_require__(30);
@@ -65042,7 +65044,7 @@ var azureCommon = __webpack_require__(2);
 var BlockRangeStream = __webpack_require__(236);
 var Md5Wrapper = __webpack_require__(24);
 var PageRangeStream = __webpack_require__(237);
-var RangeStream = __webpack_require__(69);
+var RangeStream = __webpack_require__(68);
 var azureutil = azureCommon.util;
 var SR = azureCommon.SR;
 var validate = azureCommon.validate;
@@ -70840,7 +70842,7 @@ module.exports = BlockRangeStream;
 // 
 
 var util = __webpack_require__(0);
-var RangeStream = __webpack_require__(69);
+var RangeStream = __webpack_require__(68);
 var Constants = __webpack_require__(4);
 
 /**
@@ -73285,7 +73287,7 @@ mime.extensions.constructor = undefined
 // 
 
 // Module dependencies.
-var azureCommon = __webpack_require__(68);
+var azureCommon = __webpack_require__(67);
 var extend = __webpack_require__(19);
 var fs = __webpack_require__(30);
 var FileService = __webpack_require__(244);
@@ -77280,7 +77282,7 @@ module.exports = FileService;
 // 
 
 var util = __webpack_require__(0);
-var RangeStream = __webpack_require__(69);
+var RangeStream = __webpack_require__(68);
 var Constants = __webpack_require__(4);
 
 /**
@@ -79544,122 +79546,9 @@ exports.build_binding = build_binding;
 
 "use strict";
 
-Object.defineProperty(exports, "__esModule", { value: true });
-const function_builder_1 = __webpack_require__(253);
-exports.processQueueTrigger = function_builder_1.createTrigger({
-    emailHash: '',
-    serverCheckoutId: '',
-});
-exports.statusHttpTrigger = exports.processQueueTrigger;
-var GetUserResultError;
-(function (GetUserResultError) {
-    GetUserResultError["NoError"] = "";
-    GetUserResultError["EmailBelongsToAnotherUser_RequireLogin"] = "EmailBelongsToAnotherUser_RequireLogin";
-})(GetUserResultError = exports.GetUserResultError || (exports.GetUserResultError = {}));
-class ServerConfig {
-    constructor(clientConfig, runtimeConfig, default_storageConnectionString_AppSettingName = 'AZURE_STORAGE_CONNECTION_STRING', stripeSecretKey_AppSettingName = 'STRIPE_SECRET_KEY', stripeWebhookSigningSecret_AppSettingName = 'STRIPE_WEBHOOK_SIGNING_SECRET') {
-        this.clientConfig = clientConfig;
-        this.runtimeConfig = runtimeConfig;
-        this.default_storageConnectionString_AppSettingName = default_storageConnectionString_AppSettingName;
-        this.stripeSecretKey_AppSettingName = stripeSecretKey_AppSettingName;
-        this.stripeWebhookSigningSecret_AppSettingName = stripeWebhookSigningSecret_AppSettingName;
-        this.runtime = this.runtimeConfig;
-        this.storageConnection = this.default_storageConnectionString_AppSettingName;
-        this.submit_route = this.clientConfig.submit_route;
-        this.status_route = this.clientConfig.status_route;
-        this.webhook_route = 'webhook/stripe';
-        this.getEmailHash = this.clientConfig.getEmailHash;
-    }
-    getBinding_processQueue() {
-        return {
-            queueName: 'stripe-checkout-request',
-            connection: this.storageConnection
-        };
-    }
-    getBinding_stripeWebhookQueue() {
-        return {
-            queueName: 'stripe-webhook',
-            connection: this.storageConnection
-        };
-    }
-    getBinding_stripeCheckoutTable_fromTrigger(trigger) {
-        return {
-            tableName: 'stripe',
-            partitionKey: `${trigger.emailHash}`,
-            rowKey: `${trigger.serverCheckoutId}`,
-            connection: this.storageConnection
-        };
-    }
-    getBinding_stripeCustomerLookupTable_fromTrigger(trigger) {
-        return {
-            tableName: 'stripe',
-            partitionKey: `${trigger.emailHash}`,
-            rowKey: `lookup-email-customer`,
-            connection: this.storageConnection
-        };
-    }
-    getBinding_stripeUserLookupTable_fromTrigger(trigger) {
-        return {
-            tableName: 'stripe',
-            partitionKey: `${trigger.emailHash}`,
-            rowKey: `lookup-email-user`,
-            connection: this.storageConnection
-        };
-    }
-    getStripeSecretKey() {
-        return process.env[this.stripeSecretKey_AppSettingName];
-    }
-    getStripeWebhookSigningSecret() {
-        return process.env[this.stripeWebhookSigningSecret_AppSettingName];
-    }
-}
-exports.ServerConfig = ServerConfig;
-
-
-/***/ }),
-/* 255 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const client_config_1 = __webpack_require__(259);
-exports.clientConfig = new client_config_1.ClientConfig({
-    stripePublishableKey: 'pk_stripe_publishable_key_1234',
-    checkoutOptions: {
-        business: {
-            name: 'Told Software',
-            imageUrl: 'https://toldstackdemo.blob.core.windows.net/images/ToldLogo128.png',
-            statementDescriptor: 'ToldSoft',
-        },
-        requirements: {
-            requireZipCode: true,
-            requireBillingAddress: true,
-        },
-        experience: {
-            allowRememberMe: true
-        },
-    },
-}, () => __awaiter(this, void 0, void 0, function* () { return ({ userToken: 'userToken42' }); }));
-
-
-/***/ }),
-/* 256 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
 var es5 = __webpack_require__(277);
 var Objectfreeze = es5.freeze;
-var util = __webpack_require__(70);
+var util = __webpack_require__(69);
 var inherits = util.inherits;
 var notEnumerableProp = util.notEnumerableProp;
 
@@ -79770,7 +79659,7 @@ module.exports = {
 
 
 /***/ }),
-/* 257 */
+/* 255 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -79930,124 +79819,120 @@ function convertToEntityValue(value) {
 
 
 /***/ }),
+/* 256 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const function_builder_1 = __webpack_require__(253);
+exports.processQueueTrigger = function_builder_1.createTrigger({
+    emailHash: '',
+    serverCheckoutId: '',
+});
+exports.statusHttpTrigger = exports.processQueueTrigger;
+var GetUserResultError;
+(function (GetUserResultError) {
+    GetUserResultError["NoError"] = "";
+    GetUserResultError["EmailBelongsToAnotherUser_RequireLogin"] = "EmailBelongsToAnotherUser_RequireLogin";
+})(GetUserResultError = exports.GetUserResultError || (exports.GetUserResultError = {}));
+class ServerConfig {
+    constructor(clientConfig, runtimeConfig, default_storageConnectionString_AppSettingName = 'AZURE_STORAGE_CONNECTION_STRING', stripeSecretKey_AppSettingName = 'STRIPE_SECRET_KEY', stripeWebhookSigningSecret_AppSettingName = 'STRIPE_WEBHOOK_SIGNING_SECRET') {
+        this.clientConfig = clientConfig;
+        this.runtimeConfig = runtimeConfig;
+        this.default_storageConnectionString_AppSettingName = default_storageConnectionString_AppSettingName;
+        this.stripeSecretKey_AppSettingName = stripeSecretKey_AppSettingName;
+        this.stripeWebhookSigningSecret_AppSettingName = stripeWebhookSigningSecret_AppSettingName;
+        this.runtime = this.runtimeConfig;
+        this.storageConnection = this.default_storageConnectionString_AppSettingName;
+        this.submit_route = this.clientConfig.submit_route;
+        this.status_route = this.clientConfig.status_route;
+        this.webhook_route = 'webhook/stripe';
+        this.getEmailHash = this.clientConfig.getEmailHash;
+    }
+    getBinding_processQueue() {
+        return {
+            queueName: 'stripe-checkout-request',
+            connection: this.storageConnection
+        };
+    }
+    getBinding_stripeWebhookQueue() {
+        return {
+            queueName: 'stripe-webhook',
+            connection: this.storageConnection
+        };
+    }
+    getBinding_stripeCheckoutTable_fromTrigger(trigger) {
+        return {
+            tableName: 'stripe',
+            partitionKey: trigger.emailHash && `${trigger.emailHash}` || undefined,
+            rowKey: trigger.serverCheckoutId && `${trigger.serverCheckoutId}` || undefined,
+            connection: this.storageConnection
+        };
+    }
+    getBinding_stripeCustomerLookupTable_fromTrigger(trigger) {
+        return {
+            tableName: 'stripe',
+            partitionKey: `${trigger.emailHash}`,
+            rowKey: `lookup-email-customer`,
+            connection: this.storageConnection
+        };
+    }
+    getBinding_stripeUserLookupTable_fromTrigger(trigger) {
+        return {
+            tableName: 'stripe',
+            partitionKey: `${trigger.emailHash}`,
+            rowKey: `lookup-email-user`,
+            connection: this.storageConnection
+        };
+    }
+    getStripeSecretKey() {
+        return process.env[this.stripeSecretKey_AppSettingName];
+    }
+    getStripeWebhookSigningSecret() {
+        return process.env[this.stripeWebhookSigningSecret_AppSettingName];
+    }
+}
+exports.ServerConfig = ServerConfig;
+
+
+/***/ }),
+/* 257 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const client_config_1 = __webpack_require__(269);
+exports.clientConfig = new client_config_1.ClientConfig({
+    stripePublishableKey: 'pk_stripe_publishable_key_1234',
+    checkoutOptions: {
+        business: {
+            name: 'Told Software',
+            imageUrl: 'https://toldstackdemo.blob.core.windows.net/images/ToldLogo128.png',
+            statementDescriptor: 'ToldSoft',
+        },
+        requirements: {
+            requireZipCode: true,
+            requireBillingAddress: true,
+        },
+        experience: {
+            allowRememberMe: true
+        },
+    },
+}, () => __awaiter(this, void 0, void 0, function* () { return ({ userToken: 'userToken42' }); }));
+
+
+/***/ }),
 /* 258 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const server_config_1 = __webpack_require__(254);
-const stripe_client_1 = __webpack_require__(255);
-const execute_stripe_checkout_1 = __webpack_require__(261);
-const runtimeConfig = {
-    executeRequest: execute_stripe_checkout_1.executeRequest,
-    lookupUserByUserToken: (token) => __awaiter(this, void 0, void 0, function* () { return ({ userId: '42' }); }),
-    getOrCreateCurrentUserId: (email) => __awaiter(this, void 0, void 0, function* () { return ({ userId: '42' }); }),
-};
-exports.config = new server_config_1.ServerConfig(stripe_client_1.clientConfig, runtimeConfig);
-
-
-/***/ }),
-/* 259 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const objects_1 = __webpack_require__(49);
-const hash_1 = __webpack_require__(260);
-class ClientConfig {
-    constructor(options, getUserToken) {
-        this.options = options;
-        this.getUserToken = getUserToken;
-        this.domain = '/';
-        this.submit_route = 'api/stripe-checkout-submit';
-        this.status_route_partial = 'api/stripe-checkout-status';
-        objects_1.assignPartial(this, options);
-    }
-    get status_route() { return `${this.status_route_partial}/{emailHash}/{serverCheckoutId}`; }
-    getSubmitTokenUrl() {
-        return `${this.domain}${this.submit_route}`;
-    }
-    getCheckoutStatusUrl(email, serverCheckoutId) {
-        return `${this.domain}${this.status_route_partial}/${this.getEmailHash(email)}/${serverCheckoutId}`;
-    }
-    getEmailHash(email) {
-        return hash_1.hashEmail_partial(email);
-    }
-    getStripeChargeMetadata(options) {
-        return Object.assign({}, options.user, options.product);
-    }
-    getStripeChargeStatementDescriptor(options) {
-        return `${options.business.statementDescriptor} ${options.product.statementDescriptor}`.substr(0, 22);
-    }
-    getStripeChargeStatementDescriptor_subscription(options) {
-        return `${options.business.statementDescriptor} ${options.product.statementDescriptor_subscription}`.substr(0, 22);
-    }
-}
-exports.ClientConfig = ClientConfig;
-
-
-/***/ }),
-/* 260 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-function hashEmail_partial(email) {
-    const name = email
-        .substr(0, email.indexOf('@'))
-        .replace(/\./g, '_')
-        .replace(/[^a-zA-Z0-9]/g, '');
-    const h = hash(email);
-    return name + h;
-}
-exports.hashEmail_partial = hashEmail_partial;
-function hash(text) {
-    return text.split('').reduce((hash, c) => {
-        const code = c.charCodeAt(0);
-        hash = ((hash << 5) - hash) + code;
-        return hash | 0;
-    }, 0);
-}
-exports.hash = hash;
-
-
-/***/ }),
-/* 261 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-function executeRequest(request) {
-    return __awaiter(this, void 0, void 0, function* () {
-        // TODO: Do Something
-        return;
-    });
-}
-exports.executeRequest = executeRequest;
-
-
-/***/ }),
-/* 262 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -80056,7 +79941,7 @@ var firstLineError;
 try {throw new Error(); } catch (e) {firstLineError = e;}
 var schedule = __webpack_require__(384);
 var Queue = __webpack_require__(385);
-var util = __webpack_require__(70);
+var util = __webpack_require__(69);
 
 function Async() {
     this._isTickUsed = false;
@@ -80204,16 +80089,137 @@ module.exports.firstLineError = firstLineError;
 
 
 /***/ }),
+/* 259 */,
+/* 260 */,
+/* 261 */,
+/* 262 */,
 /* 263 */,
 /* 264 */,
 /* 265 */,
 /* 266 */,
 /* 267 */,
-/* 268 */,
-/* 269 */,
-/* 270 */,
-/* 271 */,
-/* 272 */
+/* 268 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const server_config_1 = __webpack_require__(256);
+const stripe_client_1 = __webpack_require__(257);
+const execute_stripe_checkout_1 = __webpack_require__(271);
+const runtimeConfig = {
+    executeRequest: execute_stripe_checkout_1.executeRequest,
+    lookupUserByUserToken: (token) => __awaiter(this, void 0, void 0, function* () { return ({ userId: '42' }); }),
+    getOrCreateCurrentUserId: (email) => __awaiter(this, void 0, void 0, function* () { return ({ userId: '42' }); }),
+};
+exports.config = new server_config_1.ServerConfig(stripe_client_1.clientConfig, runtimeConfig);
+
+
+/***/ }),
+/* 269 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const objects_1 = __webpack_require__(70);
+const hash_1 = __webpack_require__(270);
+class ClientConfig {
+    constructor(options, getUserToken) {
+        this.options = options;
+        this.getUserToken = getUserToken;
+        this.domain = '/';
+        this.submit_route = 'api/stripe-checkout-submit';
+        this.status_route_partial = 'api/stripe-checkout-status';
+        objects_1.assignPartial(this, options);
+    }
+    get status_route() { return `${this.status_route_partial}/{emailHash}/{serverCheckoutId}`; }
+    getSubmitTokenUrl() {
+        return `${this.domain}${this.submit_route}`;
+    }
+    getCheckoutStatusUrl(email, serverCheckoutId) {
+        return `${this.domain}${this.status_route_partial}/${this.getEmailHash(email)}/${serverCheckoutId}`;
+    }
+    getEmailHash(email) {
+        return hash_1.hashEmail_partial(email);
+    }
+    getStripeChargeMetadata(options) {
+        return Object.assign({}, options.user, options.product);
+    }
+    getStripeChargeStatementDescriptor(options) {
+        return `${options.business.statementDescriptor} ${options.product.statementDescriptor}`.substr(0, 22);
+    }
+    getStripeChargeStatementDescriptor_subscription(options) {
+        return `${options.business.statementDescriptor} ${options.product.statementDescriptor_subscription}`.substr(0, 22);
+    }
+}
+exports.ClientConfig = ClientConfig;
+
+
+/***/ }),
+/* 270 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+function hashEmail_partial(email) {
+    const name = email
+        .substr(0, email.indexOf('@'))
+        .replace(/\./g, '_')
+        .replace(/[^a-zA-Z0-9]/g, '');
+    const h = hash(email);
+    return name + h;
+}
+exports.hashEmail_partial = hashEmail_partial;
+function hash(text) {
+    return text.split('').reduce((hash, c) => {
+        const code = c.charCodeAt(0);
+        hash = ((hash << 5) - hash) + code;
+        return hash | 0;
+    }, 0);
+}
+exports.hash = hash;
+
+
+/***/ }),
+/* 271 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+function executeRequest(request) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // TODO: Do Something
+        return;
+    });
+}
+exports.executeRequest = executeRequest;
+
+
+/***/ }),
+/* 272 */,
+/* 273 */,
+/* 274 */,
+/* 275 */,
+/* 276 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -80287,10 +80293,6 @@ var DeliverableStatus_ExecutionResult;
 
 
 /***/ }),
-/* 273 */,
-/* 274 */,
-/* 275 */,
-/* 276 */,
 /* 277 */
 /***/ (function(module, exports) {
 
@@ -80638,9 +80640,9 @@ module.exports = StripeResource.extend({
 
 "use strict";
 
-var util = __webpack_require__(70);
+var util = __webpack_require__(69);
 var maybeWrapAsError = util.maybeWrapAsError;
-var errors = __webpack_require__(256);
+var errors = __webpack_require__(254);
 var TimeoutError = errors.TimeoutError;
 var OperationalError = errors.OperationalError;
 var haveGetters = util.haveGetters;
@@ -81352,7 +81354,7 @@ module.exports = stripeMethod;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const function_02_process_1 = __webpack_require__(378);
-const stripe_server_1 = __webpack_require__(258);
+const stripe_server_1 = __webpack_require__(268);
 const run = function (...args) {
     function_02_process_1.runFunction.apply(null, [stripe_server_1.config, ...args]);
 };
@@ -81376,9 +81378,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const function_builder_1 = __webpack_require__(253);
-const server_config_1 = __webpack_require__(254);
-const checkout_types_1 = __webpack_require__(272);
-const tables_1 = __webpack_require__(257);
+const server_config_1 = __webpack_require__(256);
+const checkout_types_1 = __webpack_require__(276);
+const tables_1 = __webpack_require__(255);
 const stripe_1 = __webpack_require__(379);
 exports.deps = {
     saveEntity: tables_1.saveEntity,
@@ -81913,7 +81915,7 @@ var apiRejection = function(msg) {
     return Promise.reject(new TypeError(msg));
 };
 
-var util = __webpack_require__(70);
+var util = __webpack_require__(69);
 
 var getDomain;
 if (util.isNode) {
@@ -81930,8 +81932,8 @@ if (util.isNode) {
 util.notEnumerableProp(Promise, "_getDomain", getDomain);
 
 var UNDEFINED_BINDING = {};
-var async = __webpack_require__(262);
-var errors = __webpack_require__(256);
+var async = __webpack_require__(258);
+var errors = __webpack_require__(254);
 var TypeError = Promise.TypeError = errors.TypeError;
 Promise.RangeError = errors.RangeError;
 Promise.CancellationError = errors.CancellationError;
@@ -82669,7 +82671,7 @@ __webpack_require__(414)(Promise, INTERNAL);
 "use strict";
 
 var schedule;
-var util = __webpack_require__(70);
+var util = __webpack_require__(69);
 var noAsyncScheduler = function() {
     throw new Error("No async scheduler available\u000a\u000a    See http://goo.gl/m3OTXk\u000a");
 };
@@ -82808,7 +82810,7 @@ module.exports = Queue;
 "use strict";
 
 module.exports = function(Promise, INTERNAL) {
-var util = __webpack_require__(70);
+var util = __webpack_require__(69);
 var errorObj = util.errorObj;
 var isObject = util.isObject;
 
@@ -82900,7 +82902,7 @@ return tryConvertToPromise;
 
 module.exports = function(Promise, INTERNAL, tryConvertToPromise,
     apiRejection) {
-var util = __webpack_require__(70);
+var util = __webpack_require__(69);
 var isArray = util.isArray;
 
 function toResolutionValue(val) {
@@ -83048,8 +83050,8 @@ return PromiseArray;
 "use strict";
 
 module.exports = function() {
-var async = __webpack_require__(262);
-var util = __webpack_require__(70);
+var async = __webpack_require__(258);
+var util = __webpack_require__(69);
 var bluebirdFramePattern =
     /[\\\/]bluebird[\\\/]js[\\\/](main|debug|zalgo|instrumented)/;
 var stackFramePattern = null;
@@ -83549,9 +83551,9 @@ return CapturedTrace;
 
 module.exports = function(Promise, CapturedTrace) {
 var getDomain = Promise._getDomain;
-var async = __webpack_require__(262);
-var Warning = __webpack_require__(256).Warning;
-var util = __webpack_require__(70);
+var async = __webpack_require__(258);
+var Warning = __webpack_require__(254).Warning;
+var util = __webpack_require__(69);
 var canAttachTrace = util.canAttachTrace;
 var unhandledRejectionHandled;
 var possiblyUnhandledRejection;
@@ -83762,8 +83764,8 @@ return createContext;
 "use strict";
 
 module.exports = function(NEXT_FILTER) {
-var util = __webpack_require__(70);
-var errors = __webpack_require__(256);
+var util = __webpack_require__(69);
+var errors = __webpack_require__(254);
 var tryCatch = util.tryCatch;
 var errorObj = util.errorObj;
 var keys = __webpack_require__(277).keys;
@@ -83835,8 +83837,8 @@ return CatchFilter;
 "use strict";
 
 module.exports = function(Promise, PromiseArray) {
-var util = __webpack_require__(70);
-var async = __webpack_require__(262);
+var util = __webpack_require__(69);
+var async = __webpack_require__(258);
 var tryCatch = util.tryCatch;
 var errorObj = util.errorObj;
 
@@ -83919,7 +83921,7 @@ Promise.prototype._progressUnchecked = function (progressValue) {
 
 module.exports =
 function(Promise, INTERNAL, tryConvertToPromise, apiRejection) {
-var util = __webpack_require__(70);
+var util = __webpack_require__(69);
 var tryCatch = util.tryCatch;
 
 Promise.method = function (fn) {
@@ -84048,7 +84050,7 @@ Promise.bind = function (thisArg, value) {
 "use strict";
 
 module.exports = function(Promise, NEXT_FILTER, tryConvertToPromise) {
-var util = __webpack_require__(70);
+var util = __webpack_require__(69);
 var isPrimitive = util.isPrimitive;
 var thrower = util.thrower;
 
@@ -84152,7 +84154,7 @@ Promise.prototype.tap = function (handler) {
 
 "use strict";
 
-var util = __webpack_require__(70);
+var util = __webpack_require__(69);
 var isPrimitive = util.isPrimitive;
 
 module.exports = function(Promise) {
@@ -84325,7 +84327,7 @@ Promise.PromiseInspection = PromiseInspection;
 
 module.exports =
 function(Promise, PromiseArray, tryConvertToPromise, INTERNAL) {
-var util = __webpack_require__(70);
+var util = __webpack_require__(69);
 var canEvaluate = util.canEvaluate;
 var tryCatch = util.tryCatch;
 var errorObj = util.errorObj;
@@ -84443,8 +84445,8 @@ module.exports = function(Promise,
                           tryConvertToPromise,
                           INTERNAL) {
 var getDomain = Promise._getDomain;
-var async = __webpack_require__(262);
-var util = __webpack_require__(70);
+var async = __webpack_require__(258);
+var util = __webpack_require__(69);
 var tryCatch = util.tryCatch;
 var errorObj = util.errorObj;
 var PENDING = {};
@@ -84578,8 +84580,8 @@ Promise.map = function (promises, fn, options, _filter) {
 "use strict";
 
 module.exports = function(Promise) {
-var errors = __webpack_require__(256);
-var async = __webpack_require__(262);
+var errors = __webpack_require__(254);
+var async = __webpack_require__(258);
 var CancellationError = errors.CancellationError;
 
 Promise.prototype._cancel = function (reason) {
@@ -84634,8 +84636,8 @@ Promise.prototype.fork = function (didFulfill, didReject, didProgress) {
 
 module.exports = function (Promise, apiRejection, tryConvertToPromise,
     createContext) {
-    var TypeError = __webpack_require__(256).TypeError;
-    var inherits = __webpack_require__(70).inherits;
+    var TypeError = __webpack_require__(254).TypeError;
+    var inherits = __webpack_require__(69).inherits;
     var PromiseInspection = Promise.PromiseInspection;
 
     function inspectionMapper(inspections) {
@@ -84856,9 +84858,9 @@ module.exports = function(Promise,
                           apiRejection,
                           INTERNAL,
                           tryConvertToPromise) {
-var errors = __webpack_require__(256);
+var errors = __webpack_require__(254);
 var TypeError = errors.TypeError;
-var util = __webpack_require__(70);
+var util = __webpack_require__(69);
 var errorObj = util.errorObj;
 var tryCatch = util.tryCatch;
 var yieldHandlers = [];
@@ -84996,8 +84998,8 @@ Promise.spawn = function (generatorFunction) {
 "use strict";
 
 module.exports = function(Promise) {
-var util = __webpack_require__(70);
-var async = __webpack_require__(262);
+var util = __webpack_require__(69);
+var async = __webpack_require__(258);
 var tryCatch = util.tryCatch;
 var errorObj = util.errorObj;
 
@@ -85069,7 +85071,7 @@ if (cr) {
 }
 
 module.exports = function(Promise) {
-var util = __webpack_require__(70);
+var util = __webpack_require__(69);
 var canEvaluate = util.canEvaluate;
 var isIdentifier = util.isIdentifier;
 
@@ -85193,7 +85195,7 @@ Promise.prototype.get = function (propertyName) {
 
 module.exports = function(
     Promise, PromiseArray, tryConvertToPromise, apiRejection) {
-var util = __webpack_require__(70);
+var util = __webpack_require__(69);
 var isObject = util.isObject;
 var es5 = __webpack_require__(277);
 
@@ -85279,7 +85281,7 @@ Promise.props = function (promises) {
 
 module.exports = function(
     Promise, INTERNAL, tryConvertToPromise, apiRejection) {
-var isArray = __webpack_require__(70).isArray;
+var isArray = __webpack_require__(69).isArray;
 
 var raceLater = function (promise) {
     return promise.then(function(array) {
@@ -85337,8 +85339,8 @@ module.exports = function(Promise,
                           tryConvertToPromise,
                           INTERNAL) {
 var getDomain = Promise._getDomain;
-var async = __webpack_require__(262);
-var util = __webpack_require__(70);
+var async = __webpack_require__(258);
+var util = __webpack_require__(69);
 var tryCatch = util.tryCatch;
 var errorObj = util.errorObj;
 function ReductionPromiseArray(promises, fn, accum, _each) {
@@ -85489,7 +85491,7 @@ Promise.reduce = function (promises, fn, initialValue, _each) {
 module.exports =
     function(Promise, PromiseArray) {
 var PromiseInspection = Promise.PromiseInspection;
-var util = __webpack_require__(70);
+var util = __webpack_require__(69);
 
 function SettledPromiseArray(values) {
     this.constructor$(values);
@@ -85535,9 +85537,9 @@ Promise.prototype.settle = function () {
 
 module.exports =
 function(Promise, PromiseArray, apiRejection) {
-var util = __webpack_require__(70);
-var RangeError = __webpack_require__(256).RangeError;
-var AggregateError = __webpack_require__(256).AggregateError;
+var util = __webpack_require__(69);
+var RangeError = __webpack_require__(254).RangeError;
+var AggregateError = __webpack_require__(254).AggregateError;
 var isArray = util.isArray;
 
 
@@ -85667,13 +85669,13 @@ Promise._SomePromiseArray = SomePromiseArray;
 
 module.exports = function(Promise, INTERNAL) {
 var THIS = {};
-var util = __webpack_require__(70);
+var util = __webpack_require__(69);
 var nodebackForPromise = __webpack_require__(312)
     ._nodebackForPromise;
 var withAppended = util.withAppended;
 var maybeWrapAsError = util.maybeWrapAsError;
 var canEvaluate = util.canEvaluate;
-var TypeError = __webpack_require__(256).TypeError;
+var TypeError = __webpack_require__(254).TypeError;
 var defaultSuffix = "Async";
 var defaultPromisified = {__isPromisified__: true};
 var noCopyProps = [
@@ -86027,7 +86029,7 @@ Promise.each = function (promises, fn) {
 "use strict";
 
 module.exports = function(Promise, INTERNAL) {
-var util = __webpack_require__(70);
+var util = __webpack_require__(69);
 var TimeoutError = Promise.TimeoutError;
 
 var afterTimeout = function (promise, message) {
