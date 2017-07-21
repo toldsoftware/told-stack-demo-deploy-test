@@ -176,7 +176,7 @@ function buildFunction_http(options) {
     //     type: 'http',
     //     direction: 'out'
     // },
-    const b = new FunctionBuilder({});
+    const b = new FunctionBuilder(options.bindingData);
     const b2 = b.bindings(t => ({
         req: {
             type: 'httpTrigger',
