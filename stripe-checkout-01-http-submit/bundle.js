@@ -557,9 +557,9 @@ exports.createFunctionJson = (config) => function_builder_1.build_createFunction
 exports.runFunction = function_builder_1.build_runFunction_http(buildFunction, (config, context, req) => {
     context.log('START');
     // Handle Max Queue Size (64kb) -> Put in a blob
-    context.log('req', { req });
+    // context.log('req', { req });
     const request = JSON.parse(req.body);
-    context.log('request', { request });
+    // context.log('request', { request });
     if (!request.token) {
         context.res = {
             body: {
@@ -570,7 +570,7 @@ exports.runFunction = function_builder_1.build_runFunction_http(buildFunction, (
                 'Content-Type': 'application/json',
             }
         };
-        context.log('DONE');
+        context.log('ERROR: No Token Sent');
         context.done();
         return;
     }
@@ -589,7 +589,7 @@ exports.runFunction = function_builder_1.build_runFunction_http(buildFunction, (
     //     status,
     //     timeRequested: Date.now(),
     // };
-    context.log(`Stored in Queue`);
+    context.log(`Stored in Queue`, { emailHash, serverCheckoutId });
     context.res = {
         body: {
             checkoutStatus,
@@ -687,7 +687,10 @@ function assignPartial(t, p) {
     return t;
 }
 exports.assignPartial = assignPartial;
-function partialDeepCompare(a, e) {
+function partialDeepCompare(a, e, depth = 0) {
+    if (depth > 100) {
+        throw 'partialDeepCompare Seems to be in a cyclic loop';
+    }
     if (e === a) {
         return true;
     }
@@ -697,10 +700,14 @@ function partialDeepCompare(a, e) {
     if ((e === undefined || e === null || a === undefined || a === null)) {
         return false;
     }
+    if (typeof a === 'string') {
+        return false;
+    }
     for (let k in e) {
+        // if (!e.hasOwnProperty(k)) { continue; }
         const e2 = e[k];
         const a2 = a[k];
-        if (!partialDeepCompare(a[k], e[k])) {
+        if (!partialDeepCompare(a2, e2, depth + 1)) {
             return false;
         }
     }

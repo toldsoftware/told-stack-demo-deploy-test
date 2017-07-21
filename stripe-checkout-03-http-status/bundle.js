@@ -479,7 +479,7 @@ function buildFunction(config) {
 exports.createFunctionJson = (config) => function_builder_1.build_createFunctionJson(config, buildFunction);
 exports.runFunction = function_builder_1.build_runFunction_http(buildFunction, (config, context, req) => {
     const data = context.bindings.inStripeCheckoutTable;
-    context.log('START', { data, bindingData: context.bindingData });
+    context.log('START', { ParitionKey: data.PartitionKey, RowKey: data.RowKey });
     if (!data) {
         context.res = {
             body: {
@@ -579,7 +579,10 @@ function assignPartial(t, p) {
     return t;
 }
 exports.assignPartial = assignPartial;
-function partialDeepCompare(a, e) {
+function partialDeepCompare(a, e, depth = 0) {
+    if (depth > 100) {
+        throw 'partialDeepCompare Seems to be in a cyclic loop';
+    }
     if (e === a) {
         return true;
     }
@@ -589,10 +592,14 @@ function partialDeepCompare(a, e) {
     if ((e === undefined || e === null || a === undefined || a === null)) {
         return false;
     }
+    if (typeof a === 'string') {
+        return false;
+    }
     for (let k in e) {
+        // if (!e.hasOwnProperty(k)) { continue; }
         const e2 = e[k];
         const a2 = a[k];
-        if (!partialDeepCompare(a[k], e[k])) {
+        if (!partialDeepCompare(a2, e2, depth + 1)) {
             return false;
         }
     }
