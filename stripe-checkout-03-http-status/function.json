@@ -5,7 +5,7 @@
    "type": "httpTrigger",
    "direction": "in",
    "authLevel": "anonymous",
-   "route": "status_route_partial/{emailHash}/{serverCheckoutId}"
+   "route": "api/stripe-checkout-status/{emailHash}/{serverCheckoutId}"
   },
   {
    "name": "res",

@@ -79070,12 +79070,12 @@ class ClientConfig {
         this.status_route_partial = 'api/stripe-checkout-status';
         objects_1.assignPartial(this, options);
     }
-    get status_route() { return `status_route_partial/{emailHash}/{serverCheckoutId}`; }
+    get status_route() { return `${this.status_route_partial}/{emailHash}/{serverCheckoutId}`; }
     getSubmitTokenUrl() {
-        return `${this.domain}/${this.submit_route}`;
+        return `${this.domain}${this.submit_route}`;
     }
     getCheckoutStatusUrl(email, serverCheckoutId) {
-        return `${this.domain}/${this.status_route}/${this.getEmailHash(email)}/${serverCheckoutId}`;
+        return `${this.domain}${this.status_route_partial}/${this.getEmailHash(email)}/${serverCheckoutId}`;
     }
     getEmailHash(email) {
         return hash_1.hashEmail_partial(email);
@@ -91615,7 +91615,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const server_config_1 = __webpack_require__(463);
 const test_context_server_1 = __webpack_require__(464);
-const stripe_test_1 = __webpack_require__(466);
+const time_1 = __webpack_require__(466);
+const stripe_test_1 = __webpack_require__(467);
 const tests = [
     ...stripe_test_1.paymentTests,
 ];
@@ -91625,7 +91626,18 @@ exports.config = new server_config_1.ServerConfig('test/all-tests', (log) => __a
         rootUrl: process.env['TEST_ROOT_URL']
     });
     for (let x of tests) {
-        x(testContext);
+        const t = x(testContext);
+        log(`TEST ${t.name}`);
+        // TODO: These could run parallel
+        yield time_1.maxTimeout(5000, () => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const r = yield t.run();
+                log(`  : ${r.result.toUpperCase()}`, r);
+            }
+            catch (err) {
+                log(`  : FAIL ERROR`, { err });
+            }
+        }));
     }
 }));
 
@@ -91671,25 +91683,21 @@ const blobs_1 = __webpack_require__(266);
 class TestContext_Server {
     constructor(config) {
         this.config = config;
-    }
-    apiFetch(apiRoute, options) {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.apiFetch = (apiRoute, options) => __awaiter(this, void 0, void 0, function* () {
             // TODO: Handle Query
             const url = `${this.config.rootUrl.replace(/\/$/, '')}/${apiRoute.replace(/^\//, '')}`;
             return yield fetch_typed_server_1.fetchTyped(url, options);
         });
-    }
-    assert(name, actual, expected) {
-        const isExpected = objects_1.partialDeepCompare(actual, expected);
-        if (isExpected) {
-            this.config.log(`PASS - ${name}`);
-        }
-        else {
-            this.config.log(`FAIL - ${name}`, { actual, expected });
-        }
-    }
-    load(binding) {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.assert = (name, actual, expected) => {
+            const isExpected = objects_1.partialDeepCompare(actual, expected);
+            if (isExpected) {
+                this.config.log(`PASS - ${name}`);
+            }
+            else {
+                this.config.log(`FAIL - ${name}`, { actual, expected });
+            }
+        };
+        this.load = (binding) => __awaiter(this, void 0, void 0, function* () {
             if (isTableBinding(binding)) {
                 return yield tables_1.loadEntity(binding.tableName, binding.partitionKey, binding.rowKey);
             }
@@ -91725,7 +91733,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const node_fetch_1 = __webpack_require__(278);
 function fetchTyped(url, options) {
     return __awaiter(this, void 0, void 0, function* () {
-        const body = JSON.stringify(options.body);
+        const body = options && options.body && JSON.stringify(options.body) || undefined;
         const res = yield node_fetch_1.default(url, { body });
         const resObj = yield res.json();
         return resObj;
@@ -91741,10 +91749,68 @@ exports.fetchTyped = fetchTyped;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const test_config_1 = __webpack_require__(467);
+const ids = [];
+const CANCEL = -1;
+function setInterval_exponentialBackoff(callback, timeMs = 1000, options) {
+    options = options || {};
+    const maxTime = options.maxTime;
+    const maxAttempts = options.maxAttempts || (!maxTime ? 5 : undefined);
+    const base = options.base || 2;
+    const id = ids.length;
+    ids.push(0);
+    let attempt = -1;
+    const call = () => {
+        callback();
+        if (ids[id] === CANCEL) {
+            return;
+        }
+        attempt++;
+        if (!maxAttempts || attempt < maxAttempts) {
+            const backoffTime = timeMs * Math.pow(base, attempt);
+            const actualTime = maxTime ? Math.min(maxTime, backoffTime) : backoffTime;
+            console.log('setInterval_exponentialBackoff', { actualTime, backoffTime, timeMs, maxTime, maxAttempts, base });
+            ids[id] = setTimeout(() => {
+                call();
+            }, actualTime);
+        }
+    };
+    call();
+    return id;
+}
+exports.setInterval_exponentialBackoff = setInterval_exponentialBackoff;
+function clearInterval_exponentialBackoff(id) {
+    clearTimeout(ids[id]);
+    ids[id] = CANCEL;
+}
+exports.clearInterval_exponentialBackoff = clearInterval_exponentialBackoff;
+function maxTimeout(maxTimeMs, run) {
+    return new Promise((resolve, reject) => {
+        const id = setTimeout(() => {
+            reject("TIMED OUT");
+        }, maxTimeMs);
+        run().then(t => {
+            clearTimeout(id);
+            resolve(t);
+        }).catch((err) => {
+            clearTimeout(id);
+            reject(err);
+        });
+    });
+}
+exports.maxTimeout = maxTimeout;
+
+
+/***/ }),
+/* 467 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const test_config_1 = __webpack_require__(468);
 const stripe_client_1 = __webpack_require__(255);
 const stripe_server_1 = __webpack_require__(258);
-const Tests = __webpack_require__(468);
+const Tests = __webpack_require__(469);
 exports.testConfig = new test_config_1.TestConfig(stripe_client_1.clientConfig, stripe_server_1.config);
 exports.paymentTests = [
     (testContext) => Tests.test_001_new_user(testContext, exports.testConfig),
@@ -91752,7 +91818,7 @@ exports.paymentTests = [
 
 
 /***/ }),
-/* 467 */
+/* 468 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -91769,7 +91835,7 @@ exports.TestConfig = TestConfig;
 
 
 /***/ }),
-/* 468 */
+/* 469 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -91778,11 +91844,11 @@ function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(469));
+__export(__webpack_require__(470));
 
 
 /***/ }),
-/* 469 */
+/* 470 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -91796,9 +91862,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const integration_testing_1 = __webpack_require__(470);
-const _common_1 = __webpack_require__(471);
-const delay_1 = __webpack_require__(472);
+const integration_testing_1 = __webpack_require__(471);
+const _common_1 = __webpack_require__(472);
+const delay_1 = __webpack_require__(473);
 const checkout_types_1 = __webpack_require__(272);
 exports.test_001_new_user = integration_testing_1.createTest(({ clientConfig, functionConfig, serverConfig }) => ({
     name: 'A New User Should Purchase a Product',
@@ -91844,7 +91910,7 @@ exports.test_001_new_user = integration_testing_1.createTest(({ clientConfig, fu
 
 
 /***/ }),
-/* 470 */
+/* 471 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -91866,7 +91932,7 @@ exports.createTest = createTest;
 
 
 /***/ }),
-/* 471 */
+/* 472 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -91947,7 +92013,7 @@ exports.createCheckoutSubmitRequestBody = createCheckoutSubmitRequestBody;
 
 
 /***/ }),
-/* 472 */
+/* 473 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

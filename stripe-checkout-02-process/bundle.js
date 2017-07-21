@@ -79973,12 +79973,12 @@ class ClientConfig {
         this.status_route_partial = 'api/stripe-checkout-status';
         objects_1.assignPartial(this, options);
     }
-    get status_route() { return `status_route_partial/{emailHash}/{serverCheckoutId}`; }
+    get status_route() { return `${this.status_route_partial}/{emailHash}/{serverCheckoutId}`; }
     getSubmitTokenUrl() {
-        return `${this.domain}/${this.submit_route}`;
+        return `${this.domain}${this.submit_route}`;
     }
     getCheckoutStatusUrl(email, serverCheckoutId) {
-        return `${this.domain}/${this.status_route}/${this.getEmailHash(email)}/${serverCheckoutId}`;
+        return `${this.domain}${this.status_route_partial}/${this.getEmailHash(email)}/${serverCheckoutId}`;
     }
     getEmailHash(email) {
         return hash_1.hashEmail_partial(email);
