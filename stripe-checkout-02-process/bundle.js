@@ -79716,7 +79716,7 @@ function saveEntity(tableName, partitionKey, rowKey, values, ...aliases) {
     });
 }
 exports.saveEntity = saveEntity;
-function loadEntity(tableName, partitionKey, rowKeyOrAlias) {
+function loadEntity_parse(tableName, partitionKey, rowKeyOrAlias, shouldAutoParseJson = true) {
     return __awaiter(this, void 0, void 0, function* () {
         const tableService = azure_storage_1.createTableService();
         if (FORCE_LOWER_CASE) {
@@ -79735,7 +79735,19 @@ function loadEntity(tableName, partitionKey, rowKeyOrAlias) {
                 _timestamp: timestamp,
                 _ageMs: Date.now() - timestamp,
             };
-            return Object.assign({}, entity, metadata);
+            const data = entity;
+            if (shouldAutoParseJson) {
+                for (let k in data) {
+                    const x = data[k];
+                    if (typeof x === 'string') {
+                        try {
+                            data[k] = JSON.parse(x);
+                        }
+                        catch (err) { }
+                    }
+                }
+            }
+            return Object.assign({}, data, metadata);
         }
         catch (err) {
             console.warn(err);
@@ -79746,7 +79758,7 @@ function loadEntity(tableName, partitionKey, rowKeyOrAlias) {
         }
     });
 }
-exports.loadEntity = loadEntity;
+exports.loadEntity_parse = loadEntity_parse;
 function loadEntities(tableName, partitionKey, count) {
     return __awaiter(this, void 0, void 0, function* () {
         const tableService = azure_storage_1.createTableService();
@@ -81436,6 +81448,8 @@ exports.runFunction = function_builder_1.build_runFunction_common(buildFunction,
         yield saveData({
             emailHash: context.bindingData.emailHash,
             serverCheckoutId: context.bindingData.serverCheckoutId,
+            clientCheckoutId: q.request.clientCheckoutId,
+            request: q.request,
             checkoutStatus: checkout_types_1.CheckoutStatus.Submitted,
         });
     }
