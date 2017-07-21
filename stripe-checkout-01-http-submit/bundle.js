@@ -204,7 +204,7 @@ exports.build_binding = build_binding;
 
 /***/ }),
 
-/***/ 254:
+/***/ 256:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -250,8 +250,8 @@ class ServerConfig {
     getBinding_stripeCheckoutTable_fromTrigger(trigger) {
         return {
             tableName: 'stripe',
-            partitionKey: `${trigger.emailHash}`,
-            rowKey: `${trigger.serverCheckoutId}`,
+            partitionKey: trigger.emailHash && `${trigger.emailHash}` || undefined,
+            rowKey: trigger.serverCheckoutId && `${trigger.serverCheckoutId}` || undefined,
             connection: this.storageConnection
         };
     }
@@ -283,7 +283,7 @@ exports.ServerConfig = ServerConfig;
 
 /***/ }),
 
-/***/ 255:
+/***/ 257:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -297,7 +297,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const client_config_1 = __webpack_require__(259);
+const client_config_1 = __webpack_require__(269);
 exports.clientConfig = new client_config_1.ClientConfig({
     stripePublishableKey: 'pk_stripe_publishable_key_1234',
     checkoutOptions: {
@@ -319,7 +319,7 @@ exports.clientConfig = new client_config_1.ClientConfig({
 
 /***/ }),
 
-/***/ 258:
+/***/ 268:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -333,9 +333,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const server_config_1 = __webpack_require__(254);
-const stripe_client_1 = __webpack_require__(255);
-const execute_stripe_checkout_1 = __webpack_require__(261);
+const server_config_1 = __webpack_require__(256);
+const stripe_client_1 = __webpack_require__(257);
+const execute_stripe_checkout_1 = __webpack_require__(271);
 const runtimeConfig = {
     executeRequest: execute_stripe_checkout_1.executeRequest,
     lookupUserByUserToken: (token) => __awaiter(this, void 0, void 0, function* () { return ({ userId: '42' }); }),
@@ -346,14 +346,14 @@ exports.config = new server_config_1.ServerConfig(stripe_client_1.clientConfig, 
 
 /***/ }),
 
-/***/ 259:
+/***/ 269:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const objects_1 = __webpack_require__(49);
-const hash_1 = __webpack_require__(260);
+const objects_1 = __webpack_require__(70);
+const hash_1 = __webpack_require__(270);
 class ClientConfig {
     constructor(options, getUserToken) {
         this.options = options;
@@ -388,7 +388,7 @@ exports.ClientConfig = ClientConfig;
 
 /***/ }),
 
-/***/ 260:
+/***/ 270:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -415,7 +415,7 @@ exports.hash = hash;
 
 /***/ }),
 
-/***/ 261:
+/***/ 271:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -440,7 +440,7 @@ exports.executeRequest = executeRequest;
 
 /***/ }),
 
-/***/ 272:
+/***/ 276:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -522,7 +522,7 @@ var DeliverableStatus_ExecutionResult;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const function_01_http_submit_1 = __webpack_require__(375);
-const stripe_server_1 = __webpack_require__(258);
+const stripe_server_1 = __webpack_require__(268);
 const run = function (...args) {
     function_01_http_submit_1.runFunction.apply(null, [stripe_server_1.config, ...args]);
 };
@@ -539,7 +539,7 @@ module.exports = global.__run;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const function_builder_1 = __webpack_require__(253);
-const checkout_types_1 = __webpack_require__(272);
+const checkout_types_1 = __webpack_require__(276);
 const uuid_1 = __webpack_require__(376);
 exports.deps = {
     getServerCheckoutId: () => uuid_1.uuid.v4(),
@@ -557,7 +557,7 @@ exports.runFunction = function_builder_1.build_runFunction_http(buildFunction, (
     context.log('START');
     // Handle Max Queue Size (64kb) -> Put in a blob
     context.log('req', { req });
-    const request = JSON.parse(req.body);
+    const request = req.body;
     context.log('request', { request });
     if (!request.token) {
         context.res = {
@@ -619,7 +619,7 @@ exports.uuid = {
 
 /***/ }),
 
-/***/ 49:
+/***/ 70:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -686,20 +686,22 @@ function assignPartial(t, p) {
     return t;
 }
 exports.assignPartial = assignPartial;
-function partialDeepCompare(actual, expected) {
-    for (let k in expected) {
-        const e = expected[k];
-        const a = actual[k];
-        if (e === a) {
-            continue;
-        }
-        if ((e === undefined || e === null) && (a === undefined || a === null)) {
-            continue;
-        }
-        if (typeof e === 'object' && typeof a === 'object' && partialDeepCompare(a, e)) {
-            continue;
-        }
+function partialDeepCompare(a, e) {
+    if (e === a) {
+        return true;
+    }
+    if ((e === undefined || e === null) && (a === undefined || a === null)) {
+        return true;
+    }
+    if ((e === undefined || e === null || a === undefined || a === null)) {
         return false;
+    }
+    for (let k in e) {
+        const e2 = e[k];
+        const a2 = a[k];
+        if (!partialDeepCompare(a[k], e[k])) {
+            return false;
+        }
     }
     return true;
 }
