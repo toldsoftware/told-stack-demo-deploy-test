@@ -81408,7 +81408,7 @@ exports.runFunction = function_builder_1.build_runFunction_common(buildFunction,
         try {
             // Log History
             const b = config.getBinding_stripeCheckoutTable_fromTrigger(q);
-            const changedRowKey = `${b.rowKey}_at-${Date.now()}`;
+            const changedRowKey = `log_${b.rowKey}_at-${Date.now()}`;
             // context.log('saveData START', { paymentStatus: data.paymentStatus, data, b, changedRowKey });
             yield exports.deps.saveEntity(b.tableName, b.partitionKey, changedRowKey, Object.assign({}, data, { isLog: true }));
             // Save Main
