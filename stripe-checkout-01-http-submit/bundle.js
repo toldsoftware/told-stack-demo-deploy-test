@@ -557,7 +557,7 @@ exports.runFunction = function_builder_1.build_runFunction_http(buildFunction, (
     context.log('START');
     // Handle Max Queue Size (64kb) -> Put in a blob
     context.log('req', { req });
-    const request = req.body;
+    const request = JSON.parse(req.body);
     context.log('request', { request });
     if (!request.token) {
         context.res = {
