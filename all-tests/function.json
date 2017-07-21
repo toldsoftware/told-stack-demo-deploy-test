@@ -1,0 +1,16 @@
+{
+ "bindings": [
+  {
+   "name": "req",
+   "type": "httpTrigger",
+   "direction": "in",
+   "authLevel": "anonymous",
+   "route": "test/all-tests"
+  },
+  {
+   "name": "res",
+   "type": "http",
+   "direction": "out"
+  }
+ ]
+}
