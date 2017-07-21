@@ -6,6 +6,7 @@
    "direction": "in",
    "authLevel": "anonymous",
    "route": "api/stripe-checkout-status/{emailHash}/{serverCheckoutId}"
+   
   },
   {
    "name": "res",
