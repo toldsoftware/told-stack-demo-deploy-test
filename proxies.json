@@ -1,0 +1,20 @@
+{
+    "$schema": "http://json.schemastore.org/proxies",
+    "proxies": {
+        "Static": {
+            "matchCondition": {
+                "route": "static/{*file}"
+            },
+            "backendUri": "https://told-stack-demo.azurewebsites.net/api/static?file={file}"
+        },
+        "Root": {
+            "matchCondition": {
+                "route": "",
+                "methods": [
+                    "GET"
+                ]
+            },
+            "backendUri": "https://told-stack-demo.azurewebsites.net/api/static?file=demo/"
+        }
+    }
+}

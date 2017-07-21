@@ -1,0 +1,5 @@
+.vscode
+appsettings.json
+*.map
+*.hot-update.js
+*.hot-update.json

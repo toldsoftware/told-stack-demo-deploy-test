@@ -1,0 +1,56 @@
+{
+ "bindings": [
+  {
+   "name": "inProcessQueueTrigger",
+   "queueName": "stripe-checkout-request",
+   "connection": "AZURE_STORAGE_CONNECTION_STRING",
+   "direction": "in",
+   "type": "queueTrigger"
+  },
+  {
+   "name": "inStripeCheckoutTable",
+   "tableName": "stripe",
+   "partitionKey": "{emailHash}",
+   "rowKey": "{serverCheckoutId}",
+   "connection": "AZURE_STORAGE_CONNECTION_STRING",
+   "direction": "in",
+   "type": "table"
+  },
+  {
+   "name": "inStripeCustomerLookupTable",
+   "tableName": "stripe",
+   "partitionKey": "{emailHash}",
+   "rowKey": "lookup-email-customer",
+   "connection": "AZURE_STORAGE_CONNECTION_STRING",
+   "direction": "in",
+   "type": "table"
+  },
+  {
+   "name": "inStripeUserLookupTable",
+   "tableName": "stripe",
+   "partitionKey": "{emailHash}",
+   "rowKey": "lookup-email-user",
+   "connection": "AZURE_STORAGE_CONNECTION_STRING",
+   "direction": "in",
+   "type": "table"
+  },
+  {
+   "name": "outStripeCustomerLookupTable",
+   "tableName": "stripe",
+   "partitionKey": "{emailHash}",
+   "rowKey": "lookup-email-customer",
+   "connection": "AZURE_STORAGE_CONNECTION_STRING",
+   "direction": "out",
+   "type": "table"
+  },
+  {
+   "name": "outStripeUserLookupTable",
+   "tableName": "stripe",
+   "partitionKey": "{emailHash}",
+   "rowKey": "lookup-email-user",
+   "connection": "AZURE_STORAGE_CONNECTION_STRING",
+   "direction": "out",
+   "type": "table"
+  }
+ ]
+}

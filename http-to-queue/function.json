@@ -1,0 +1,24 @@
+{
+ "bindings": [
+  {
+   "name": "req",
+   "type": "httpTrigger",
+   "direction": "in",
+   "authLevel": "anonymous",
+   "route": "api/http-to-queue/{key}"
+  },
+  {
+   "name": "res",
+   "type": "http",
+   "direction": "out"
+  },
+  {
+   "name": "outOutputQueue",
+   "type": "queue",
+   "direction": "out",
+   "queueName": "http-to-queue-output-queue",
+   "connection": "AZURE_STORAGE_CONNECTION_STRING"
+  }
+ ],
+ "disabled": false
+}

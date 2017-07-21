@@ -1,0 +1,23 @@
+{
+ "bindings": [
+  {
+   "name": "req",
+   "type": "httpTrigger",
+   "direction": "in",
+   "authLevel": "anonymous",
+   "route": "webhook/stripe"
+  },
+  {
+   "name": "res",
+   "type": "http",
+   "direction": "out"
+  },
+  {
+   "name": "outWebhookQueue",
+   "type": "queue",
+   "direction": "out",
+   "connection": "AZURE_STORAGE_CONNECTION_STRING"
+  }
+ ],
+ "disabled": false
+}

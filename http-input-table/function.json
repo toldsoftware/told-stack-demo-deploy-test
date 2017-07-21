@@ -1,0 +1,26 @@
+{
+ "bindings": [
+  {
+   "name": "req",
+   "type": "httpTrigger",
+   "direction": "in",
+   "authLevel": "anonymous",
+   "route": "api/http-input-table/{table}/{partition}/{row}"
+  },
+  {
+   "name": "res",
+   "type": "http",
+   "direction": "out"
+  },
+  {
+   "name": "inInputTable",
+   "type": "table",
+   "direction": "in",
+   "tableName": "{table}",
+   "partitionKey": "{partition}",
+   "rowKey": "{row}",
+   "connection": "AZURE_STORAGE_CONNECTION_STRING"
+  }
+ ],
+ "disabled": false
+}

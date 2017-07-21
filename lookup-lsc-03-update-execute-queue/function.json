@@ -1,0 +1,44 @@
+{
+ "bindings": [
+  {
+   "name": "inUpdateExecuteQueue",
+   "type": "queueTrigger",
+   "direction": "in",
+   "queueName": "lookup-lsc-update-execute-queue",
+   "connection": "AZURE_STORAGE_CONNECTION_STRING"
+  },
+  {
+   "name": "inRawDataBlob",
+   "type": "blob",
+   "direction": "in",
+   "path": "{containerName}/{blobName}",
+   "connection": "AZURE_STORAGE_CONNECTION_STRING"
+  },
+  {
+   "name": "outRawDataBlob",
+   "type": "blob",
+   "direction": "out",
+   "path": "{containerName}/{blobName}",
+   "connection": "AZURE_STORAGE_CONNECTION_STRING"
+  },
+  {
+   "name": "inLookupTable",
+   "type": "table",
+   "direction": "in",
+   "tableName": "blobaccess",
+   "partitionKey": "{containerName}_{blobName}",
+   "rowKey": "lookup",
+   "connection": "AZURE_STORAGE_CONNECTION_STRING"
+  },
+  {
+   "name": "outLookupTable",
+   "type": "table",
+   "direction": "out",
+   "tableName": "blobaccess",
+   "partitionKey": "{containerName}_{blobName}",
+   "rowKey": "lookup",
+   "connection": "AZURE_STORAGE_CONNECTION_STRING"
+  }
+ ],
+ "disabled": false
+}

@@ -1,0 +1,23 @@
+{
+ "bindings": [
+  {
+   "name": "req",
+   "type": "httpTrigger",
+   "direction": "in",
+   "authLevel": "anonymous",
+   "route": "api/stripe-checkout-submit"
+  },
+  {
+   "name": "res",
+   "type": "http",
+   "direction": "out"
+  },
+  {
+   "name": "outProcessQueue",
+   "queueName": "stripe-checkout-request",
+   "connection": "AZURE_STORAGE_CONNECTION_STRING",
+   "direction": "out",
+   "type": "queue"
+  }
+ ]
+}

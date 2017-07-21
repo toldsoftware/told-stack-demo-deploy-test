@@ -1,0 +1,55 @@
+{
+ "bindings": [
+  {
+   "name": "inLogQueue",
+   "type": "queueTrigger",
+   "direction": "in",
+   "queueName": "log",
+   "connection": "AZURE_STORAGE_CONNECTION_STRING"
+  },
+  {
+   "name": "outLogTable",
+   "type": "table",
+   "direction": "out",
+   "tableName": "log",
+   "connection": "AZURE_STORAGE_CONNECTION_STRING"
+  },
+  {
+   "name": "inSessionLookupTable",
+   "type": "table",
+   "direction": "in",
+   "tableName": "sessionuserlookup",
+   "partitionKey": "lookup-session-user",
+   "rowKey": "{sessionId}",
+   "connection": "AZURE_STORAGE_CONNECTION_STRING"
+  },
+  {
+   "name": "outSessionLookupTable",
+   "type": "table",
+   "direction": "out",
+   "tableName": "sessionuserlookup",
+   "partitionKey": "lookup-session-user",
+   "rowKey": "{sessionId}",
+   "connection": "AZURE_STORAGE_CONNECTION_STRING"
+  },
+  {
+   "name": "inUserLookupTable",
+   "type": "table",
+   "direction": "in",
+   "tableName": "sessionuserlookup",
+   "partitionKey": "lookup-user-session",
+   "rowKey": "{userId}",
+   "connection": "AZURE_STORAGE_CONNECTION_STRING"
+  },
+  {
+   "name": "outUserLookupTable",
+   "type": "table",
+   "direction": "out",
+   "tableName": "sessionuserlookup",
+   "partitionKey": "lookup-user-session",
+   "rowKey": "{userId}",
+   "connection": "AZURE_STORAGE_CONNECTION_STRING"
+  }
+ ],
+ "disabled": false
+}

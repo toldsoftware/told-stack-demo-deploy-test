@@ -1,0 +1,35 @@
+{
+ "bindings": [
+  {
+   "name": "req",
+   "type": "httpTrigger",
+   "direction": "in",
+   "authLevel": "anonymous",
+   "route": "api/http-to-table-sdk/{table}/{partition}/{row}"
+  },
+  {
+   "name": "res",
+   "type": "http",
+   "direction": "out"
+  },
+  {
+   "name": "inOutputTable",
+   "type": "table",
+   "direction": "in",
+   "tableName": "{table}",
+   "partitionKey": "{partition}",
+   "rowKey": "{row}",
+   "connection": "AZURE_STORAGE_CONNECTION_STRING"
+  },
+  {
+   "name": "outOutputTable",
+   "type": "table",
+   "direction": "out",
+   "tableName": "{table}",
+   "partitionKey": "{partition}",
+   "rowKey": "{row}",
+   "connection": "AZURE_STORAGE_CONNECTION_STRING"
+  }
+ ],
+ "disabled": false
+}

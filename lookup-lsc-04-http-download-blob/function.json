@@ -1,0 +1,17 @@
+{
+ "bindings": [
+  {
+   "name": "req",
+   "type": "httpTrigger",
+   "direction": "in",
+   "authLevel": "anonymous",
+   "route": "api/lookup-lsc-download/{containerName}/{blobName}/{timeKeyWithGzip}"
+  },
+  {
+   "name": "res",
+   "type": "http",
+   "direction": "out"
+  }
+ ],
+ "disabled": false
+}

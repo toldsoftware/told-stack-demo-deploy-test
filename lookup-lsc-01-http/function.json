@@ -1,0 +1,33 @@
+{
+ "bindings": [
+  {
+   "name": "req",
+   "type": "httpTrigger",
+   "direction": "in",
+   "authLevel": "anonymous",
+   "route": "api/lookup-lsc/{containerName}/{blobName}"
+  },
+  {
+   "name": "res",
+   "type": "http",
+   "direction": "out"
+  },
+  {
+   "name": "inLookupTable",
+   "type": "table",
+   "direction": "in",
+   "tableName": "blobaccess",
+   "partitionKey": "{containerName}_{blobName}",
+   "rowKey": "lookup",
+   "connection": "AZURE_STORAGE_CONNECTION_STRING"
+  },
+  {
+   "name": "outUpdateRequestQueue",
+   "type": "queue",
+   "direction": "out",
+   "queueName": "lookup-lsc-update-request-queue",
+   "connection": "AZURE_STORAGE_CONNECTION_STRING"
+  }
+ ],
+ "disabled": false
+}
