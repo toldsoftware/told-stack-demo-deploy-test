@@ -478,8 +478,8 @@ function buildFunction(config) {
 }
 exports.createFunctionJson = (config) => function_builder_1.build_createFunctionJson(config, buildFunction);
 exports.runFunction = function_builder_1.build_runFunction_http(buildFunction, (config, context, req) => {
-    context.log('START');
     const data = context.bindings.inStripeCheckoutTable;
+    context.log('START', { data, bindingData: context.bindingData });
     if (!data) {
         context.res = {
             body: {
