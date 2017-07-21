@@ -6,7 +6,6 @@
    "direction": "in",
    "authLevel": "anonymous",
    "route": "api/stripe-checkout-status/{emailHash}/{serverCheckoutId}"
-   
   },
   {
    "name": "res",
@@ -15,10 +14,10 @@
   },
   {
    "name": "inStripeCheckoutTable",
-   "type": "table",
+   "tableName": "stripe",
+   "connection": "AZURE_STORAGE_CONNECTION_STRING",
    "direction": "in",
-   "connection": "AZURE_STORAGE_CONNECTION_STRING"
+   "type": "table"
   }
- ],
- "disabled": false
+ ]
 }

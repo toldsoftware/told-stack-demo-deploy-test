@@ -204,7 +204,7 @@ exports.build_binding = build_binding;
 
 /***/ }),
 
-/***/ 254:
+/***/ 256:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -250,8 +250,8 @@ class ServerConfig {
     getBinding_stripeCheckoutTable_fromTrigger(trigger) {
         return {
             tableName: 'stripe',
-            partitionKey: `${trigger.emailHash}`,
-            rowKey: `${trigger.serverCheckoutId}`,
+            partitionKey: trigger.emailHash && `${trigger.emailHash}` || undefined,
+            rowKey: trigger.serverCheckoutId && `${trigger.serverCheckoutId}` || undefined,
             connection: this.storageConnection
         };
     }
@@ -283,7 +283,7 @@ exports.ServerConfig = ServerConfig;
 
 /***/ }),
 
-/***/ 255:
+/***/ 257:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -297,7 +297,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const client_config_1 = __webpack_require__(259);
+const client_config_1 = __webpack_require__(269);
 exports.clientConfig = new client_config_1.ClientConfig({
     stripePublishableKey: 'pk_stripe_publishable_key_1234',
     checkoutOptions: {
@@ -319,7 +319,7 @@ exports.clientConfig = new client_config_1.ClientConfig({
 
 /***/ }),
 
-/***/ 258:
+/***/ 268:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -333,9 +333,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const server_config_1 = __webpack_require__(254);
-const stripe_client_1 = __webpack_require__(255);
-const execute_stripe_checkout_1 = __webpack_require__(261);
+const server_config_1 = __webpack_require__(256);
+const stripe_client_1 = __webpack_require__(257);
+const execute_stripe_checkout_1 = __webpack_require__(271);
 const runtimeConfig = {
     executeRequest: execute_stripe_checkout_1.executeRequest,
     lookupUserByUserToken: (token) => __awaiter(this, void 0, void 0, function* () { return ({ userId: '42' }); }),
@@ -346,14 +346,14 @@ exports.config = new server_config_1.ServerConfig(stripe_client_1.clientConfig, 
 
 /***/ }),
 
-/***/ 259:
+/***/ 269:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const objects_1 = __webpack_require__(49);
-const hash_1 = __webpack_require__(260);
+const objects_1 = __webpack_require__(70);
+const hash_1 = __webpack_require__(270);
 class ClientConfig {
     constructor(options, getUserToken) {
         this.options = options;
@@ -388,7 +388,7 @@ exports.ClientConfig = ClientConfig;
 
 /***/ }),
 
-/***/ 260:
+/***/ 270:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -415,7 +415,7 @@ exports.hash = hash;
 
 /***/ }),
 
-/***/ 261:
+/***/ 271:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -440,81 +440,6 @@ exports.executeRequest = executeRequest;
 
 /***/ }),
 
-/***/ 272:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var CheckoutStatus;
-(function (CheckoutStatus) {
-    // Nothing has happened yet
-    CheckoutStatus["NotStarted"] = "NotStarted";
-    // The user has clicked the open button and is opening
-    CheckoutStatus["Started"] = "Started";
-    // The form has called the opened callback
-    CheckoutStatus["Opened"] = "Opened";
-    // The form has called the closed callback (Cancelled, Failed Verification?)
-    CheckoutStatus["Closed"] = "Closed";
-    // // NOT SURE IF THESE CAN BE USED WITH STRIPE CHECKOUT
-    // // The user has submitted and the provider is verifying the information 
-    // Verifing = 'Verifing',
-    // // The payment failed (Try Again)
-    // VerificationFailed = 'VerificationFailed',
-    // The payment was sent to the server
-    CheckoutStatus["Submitting"] = "Submitting";
-    // The payment was received by the server (and Queued)
-    CheckoutStatus["Submitted"] = "Submitted";
-    // The payment was rejected by the server (and not Queued)
-    CheckoutStatus["Submission_Failed"] = "Submission_Failed";
-    // The Submission Requires User Login with the Stripe Email
-    CheckoutStatus["Submission_Rejected_LoginAndResubmit"] = "Submission_Rejected_LoginAndResubmit";
-})(CheckoutStatus = exports.CheckoutStatus || (exports.CheckoutStatus = {}));
-var PaymentStatus;
-(function (PaymentStatus) {
-    PaymentStatus["NotStarted"] = "NotStarted";
-    PaymentStatus["Processing"] = "Processing";
-    PaymentStatus["Paused"] = "Paused";
-    PaymentStatus["PaymentSuceeded"] = "PaymentSuceeded";
-    PaymentStatus["PaymentFailed"] = "PaymentFailed";
-    // Payment Refunded or Disputed
-    PaymentStatus["PaymentWithdrawn"] = "PaymentWithdrawn";
-})(PaymentStatus = exports.PaymentStatus || (exports.PaymentStatus = {}));
-var SubscriptionStatus;
-(function (SubscriptionStatus) {
-    SubscriptionStatus["NotStarted"] = "NotStarted";
-    SubscriptionStatus["Processing"] = "Processing";
-    SubscriptionStatus["SubscriptionFailed"] = "SubscriptionFailed";
-    SubscriptionStatus["Subscribed_TrialPeriod"] = "Subscribed_TrialPeriod";
-    SubscriptionStatus["Subscribed_Normal"] = "Subscribed";
-    // Payment Failed but Still Doing Automated Re-Attempts
-    SubscriptionStatus["Subscribed_PastDue"] = "Subscribed_PastDue";
-    // Failed to Process (No Further Automated Attempts will be Made)
-    SubscriptionStatus["Unsubscribed_PastDue"] = "Unsubscribed_PastDue";
-    SubscriptionStatus["Unsubscribed_Cancelled"] = "Unsubscribed_Cancelled";
-})(SubscriptionStatus = exports.SubscriptionStatus || (exports.SubscriptionStatus = {}));
-var DeliverableStatus;
-(function (DeliverableStatus) {
-    DeliverableStatus["NotStarted"] = "NotStarted";
-    DeliverableStatus["Processing"] = "Processing";
-    DeliverableStatus["Enabled"] = "Enabled";
-    DeliverableStatus["Disabled"] = "Disabled";
-})(DeliverableStatus = exports.DeliverableStatus || (exports.DeliverableStatus = {}));
-var DeliverableStatus_ExecutionResult;
-(function (DeliverableStatus_ExecutionResult) {
-    DeliverableStatus_ExecutionResult["NotStarted"] = "NotStarted";
-    DeliverableStatus_ExecutionResult["Processing"] = "Processing";
-    DeliverableStatus_ExecutionResult["Enabled"] = "Enabled";
-    DeliverableStatus_ExecutionResult["Disabled"] = "Disabled";
-    // For example, something that is disabled but has already been delivered (so there is nothing further to do)
-    DeliverableStatus_ExecutionResult["Disabled_Impossible"] = "Disabled_Impossible";
-    // Attempt to Activate Caused an Error in the Activation System
-    DeliverableStatus_ExecutionResult["Error"] = "Error";
-})(DeliverableStatus_ExecutionResult = exports.DeliverableStatus_ExecutionResult || (exports.DeliverableStatus_ExecutionResult = {}));
-
-
-/***/ }),
-
 /***/ 456:
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -522,7 +447,7 @@ var DeliverableStatus_ExecutionResult;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const function_03_http_status_1 = __webpack_require__(457);
-const stripe_server_1 = __webpack_require__(258);
+const stripe_server_1 = __webpack_require__(268);
 const run = function (...args) {
     function_03_http_status_1.runFunction.apply(null, [stripe_server_1.config, ...args]);
 };
@@ -537,66 +462,27 @@ module.exports = global.__run;
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const checkout_types_1 = __webpack_require__(272);
-function createFunctionJson(config) {
-    return {
-        bindings: [
-            {
-                name: "req",
-                type: "httpTrigger",
-                direction: "in",
-                authLevel: "anonymous",
-                route: config.status_route
-            },
-            {
-                name: "res",
-                type: "http",
-                direction: "out"
-            },
-            {
-                name: "inStripeCheckoutTable",
-                type: "table",
-                direction: "in",
-                tableName: config.stripeCheckoutTable_tableName,
-                partitionKey: config.stripeCheckoutTable_partitionKey_fromTrigger,
-                rowKey: config.stripeCheckoutTable_rowKey_fromTrigger,
-                connection: config.storageConnection
-            },
-        ],
-        disabled: false
-    };
+const function_builder_1 = __webpack_require__(253);
+const server_config_1 = __webpack_require__(256);
+exports.deps = {};
+function buildFunction(config) {
+    return function_builder_1.buildFunction_http({
+        route: config.status_route,
+        bindingData: server_config_1.statusHttpTrigger
+    })
+        .bindings(t => ({
+        inStripeCheckoutTable: function_builder_1.build_binding(config.getBinding_stripeCheckoutTable_fromTrigger(t))
+    }));
 }
-exports.createFunctionJson = createFunctionJson;
-function runFunction(config, context, req) {
-    return __awaiter(this, void 0, void 0, function* () {
-        context.log('START');
-        const data = context.bindings.inStripeCheckoutTable;
-        if (!data) {
-            context.res = {
-                body: {
-                    error: 'No Status Found Yet, Try Again Soon',
-                    checkoutStatus: checkout_types_1.CheckoutStatus.ProcessingQueued,
-                },
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            };
-            context.log('DONE');
-            context.done();
-            return;
-        }
+exports.createFunctionJson = (config) => function_builder_1.build_createFunctionJson(config, buildFunction);
+exports.runFunction = function_builder_1.build_runFunction_http(buildFunction, (config, context, req) => {
+    context.log('START');
+    const data = context.bindings.inStripeCheckoutTable;
+    if (!data) {
         context.res = {
             body: {
-                checkoutStatus: data.status,
+                error: 'No Status Found Yet, Try Again Soon',
             },
             headers: {
                 'Content-Type': 'application/json',
@@ -604,15 +490,28 @@ function runFunction(config, context, req) {
         };
         context.log('DONE');
         context.done();
-    });
-}
-exports.runFunction = runFunction;
-;
+        return;
+    }
+    context.res = {
+        body: {
+            checkoutStatus: data.checkoutStatus,
+            paymentStatus: data.paymentStatus,
+            subscriptionStatus: data.subscriptionStatus,
+            deliverableStatus: data.deliverableStatus,
+            deliverableStatus_executionResult: data.deliverableStatus_executionResult,
+        },
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    };
+    context.log('DONE');
+    context.done();
+});
 
 
 /***/ }),
 
-/***/ 49:
+/***/ 70:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
