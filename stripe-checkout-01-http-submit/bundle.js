@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 374);
+/******/ 	return __webpack_require__(__webpack_require__.s = 378);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -216,11 +216,6 @@ exports.processQueueTrigger = function_builder_1.createTrigger({
     serverCheckoutId: '',
 });
 exports.statusHttpTrigger = exports.processQueueTrigger;
-var GetUserResultError;
-(function (GetUserResultError) {
-    GetUserResultError["NoError"] = "";
-    GetUserResultError["EmailBelongsToAnotherUser_RequireLogin"] = "EmailBelongsToAnotherUser_RequireLogin";
-})(GetUserResultError = exports.GetUserResultError || (exports.GetUserResultError = {}));
 class ServerConfig {
     constructor(clientConfig, runtimeConfig, stripeSecretKey_AppSettingName = 'STRIPE_SECRET_KEY', stripeWebhookSigningSecret_AppSettingName = 'STRIPE_WEBHOOK_SIGNING_SECRET') {
         this.clientConfig = clientConfig;
@@ -315,7 +310,8 @@ exports.clientConfig = new client_config_1.ClientConfig({
             allowRememberMe: true
         },
     },
-}, () => __awaiter(this, void 0, void 0, function* () { return ({ userToken: 'userToken42' }); }));
+    getSessionToken: () => __awaiter(this, void 0, void 0, function* () { return ({ sessionToken: 'userToken42' }); }),
+});
 
 
 /***/ }),
@@ -339,8 +335,8 @@ const stripe_client_1 = __webpack_require__(257);
 const execute_stripe_checkout_1 = __webpack_require__(271);
 const runtimeConfig = {
     executeRequest: execute_stripe_checkout_1.executeRequest,
-    lookupUserByUserToken: (token) => __awaiter(this, void 0, void 0, function* () { return ({ userId: '42' }); }),
-    getOrCreateCurrentUserId: (email) => __awaiter(this, void 0, void 0, function* () { return ({ userId: '42' }); }),
+    lookupUser_sessionToken: (sessionToken) => __awaiter(this, void 0, void 0, function* () { return ({ userId: '42' }); }),
+    lookupUser_stripeEmail: (stripeEmail) => __awaiter(this, void 0, void 0, function* () { return ({ userId: '42' }); }),
 };
 exports.config = new server_config_1.ServerConfig(stripe_client_1.clientConfig, runtimeConfig);
 
@@ -356,33 +352,33 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const objects_1 = __webpack_require__(70);
 const hash_1 = __webpack_require__(270);
 class ClientConfig {
-    constructor(options, getUserToken) {
+    constructor(options) {
         this.options = options;
-        this.getUserToken = getUserToken;
         this.domain = '/';
         this.submit_route = 'api/stripe-checkout-submit';
         this.status_route_partial = 'api/stripe-checkout-status';
+        this.getSessionToken = this.options.getSessionToken;
+        this.getServerUrl_submit = () => {
+            return `${this.domain}${this.submit_route}`;
+        };
+        this.getServerUrl_status = (email, serverCheckoutId) => {
+            return `${this.domain}${this.status_route_partial}/${this.getEmailHash(email)}/${serverCheckoutId}`;
+        };
+        this.getEmailHash = (email) => {
+            return hash_1.hashEmail_partial(email);
+        };
+        this.getStripeChargeMetadata = (options) => {
+            return Object.assign({}, options.user, options.product);
+        };
+        this.getStripeChargeStatementDescriptor = (options) => {
+            return `${options.business.statementDescriptor} ${options.product.statementDescriptor}`.substr(0, 22);
+        };
+        this.getStripeChargeStatementDescriptor_subscription = (options) => {
+            return `${options.business.statementDescriptor} ${options.product.statementDescriptor_subscription}`.substr(0, 22);
+        };
         objects_1.assignPartial(this, options);
     }
     get status_route() { return `${this.status_route_partial}/{emailHash}/{serverCheckoutId}`; }
-    getSubmitTokenUrl() {
-        return `${this.domain}${this.submit_route}`;
-    }
-    getCheckoutStatusUrl(email, serverCheckoutId) {
-        return `${this.domain}${this.status_route_partial}/${this.getEmailHash(email)}/${serverCheckoutId}`;
-    }
-    getEmailHash(email) {
-        return hash_1.hashEmail_partial(email);
-    }
-    getStripeChargeMetadata(options) {
-        return Object.assign({}, options.user, options.product);
-    }
-    getStripeChargeStatementDescriptor(options) {
-        return `${options.business.statementDescriptor} ${options.product.statementDescriptor}`.substr(0, 22);
-    }
-    getStripeChargeStatementDescriptor_subscription(options) {
-        return `${options.business.statementDescriptor} ${options.product.statementDescriptor_subscription}`.substr(0, 22);
-    }
 }
 exports.ClientConfig = ClientConfig;
 
@@ -468,14 +464,26 @@ var CheckoutStatus;
     CheckoutStatus["Submitted"] = "Submitted";
     // The payment was rejected by the server (and not Queued)
     CheckoutStatus["Submission_Failed"] = "Submission_Failed";
-    // The Submission Requires User Login with the Stripe Email
-    CheckoutStatus["Submission_Rejected_LoginAndResubmit"] = "Submission_Rejected_LoginAndResubmit";
+    // The Submission Requires User Action to Proceed
+    CheckoutStatus["Submission_Paused"] = "Submission_Paused";
 })(CheckoutStatus = exports.CheckoutStatus || (exports.CheckoutStatus = {}));
+var CheckoutPausedReason;
+(function (CheckoutPausedReason) {
+    CheckoutPausedReason["None"] = "";
+    // The Submission Requires User Login with the Stripe Email
+    CheckoutPausedReason["EmailBelongsToAccount_LoginAndResubmit"] = "EmailBelongsToAccount_LoginAndResubmit";
+    // User Id could not be found by provided Session Id: Make sure to request Session before submission
+    CheckoutPausedReason["SessionNotFound_CreateNewSession"] = "SessionNotFound_CreateNewSession";
+    // Email was Found, but Belongs to a Different User -> Login to Correct Account
+    CheckoutPausedReason["EmailBelongsToOtherUser_LoginToCorrectAccount"] = "EmailBelongsToOtherUser_LoginToCorrectAccount";
+    // Unknown Error Failed to Verify User
+    CheckoutPausedReason["UnknownUserError_CreateNewSession"] = "UnknownUserError_CreateNewSession";
+})(CheckoutPausedReason = exports.CheckoutPausedReason || (exports.CheckoutPausedReason = {}));
 var PaymentStatus;
 (function (PaymentStatus) {
     PaymentStatus["NotStarted"] = "NotStarted";
     PaymentStatus["Processing"] = "Processing";
-    PaymentStatus["Paused"] = "Paused";
+    // Paused = 'Paused',
     PaymentStatus["PaymentSuceeded"] = "PaymentSuceeded";
     PaymentStatus["PaymentFailed"] = "PaymentFailed";
     // Payment Refunded or Disputed
@@ -516,13 +524,13 @@ var DeliverableStatus_ExecutionResult;
 
 /***/ }),
 
-/***/ 374:
+/***/ 378:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const function_01_http_submit_1 = __webpack_require__(375);
+const function_01_http_submit_1 = __webpack_require__(379);
 const stripe_server_1 = __webpack_require__(268);
 const run = function (...args) {
     function_01_http_submit_1.runFunction.apply(null, [stripe_server_1.config, ...args]);
@@ -533,7 +541,7 @@ module.exports = global.__run;
 
 /***/ }),
 
-/***/ 375:
+/***/ 379:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -541,7 +549,7 @@ module.exports = global.__run;
 Object.defineProperty(exports, "__esModule", { value: true });
 const function_builder_1 = __webpack_require__(253);
 const checkout_types_1 = __webpack_require__(276);
-const uuid_1 = __webpack_require__(376);
+const uuid_1 = __webpack_require__(380);
 exports.deps = {
     getServerCheckoutId: () => uuid_1.uuid.v4(),
 };
@@ -606,7 +614,7 @@ exports.runFunction = function_builder_1.build_runFunction_http(buildFunction, (
 
 /***/ }),
 
-/***/ 376:
+/***/ 380:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

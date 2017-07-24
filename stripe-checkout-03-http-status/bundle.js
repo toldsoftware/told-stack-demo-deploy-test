@@ -216,11 +216,6 @@ exports.processQueueTrigger = function_builder_1.createTrigger({
     serverCheckoutId: '',
 });
 exports.statusHttpTrigger = exports.processQueueTrigger;
-var GetUserResultError;
-(function (GetUserResultError) {
-    GetUserResultError["NoError"] = "";
-    GetUserResultError["EmailBelongsToAnotherUser_RequireLogin"] = "EmailBelongsToAnotherUser_RequireLogin";
-})(GetUserResultError = exports.GetUserResultError || (exports.GetUserResultError = {}));
 class ServerConfig {
     constructor(clientConfig, runtimeConfig, stripeSecretKey_AppSettingName = 'STRIPE_SECRET_KEY', stripeWebhookSigningSecret_AppSettingName = 'STRIPE_WEBHOOK_SIGNING_SECRET') {
         this.clientConfig = clientConfig;
@@ -315,7 +310,8 @@ exports.clientConfig = new client_config_1.ClientConfig({
             allowRememberMe: true
         },
     },
-}, () => __awaiter(this, void 0, void 0, function* () { return ({ userToken: 'userToken42' }); }));
+    getSessionToken: () => __awaiter(this, void 0, void 0, function* () { return ({ sessionToken: 'userToken42' }); }),
+});
 
 
 /***/ }),
@@ -339,8 +335,8 @@ const stripe_client_1 = __webpack_require__(257);
 const execute_stripe_checkout_1 = __webpack_require__(271);
 const runtimeConfig = {
     executeRequest: execute_stripe_checkout_1.executeRequest,
-    lookupUserByUserToken: (token) => __awaiter(this, void 0, void 0, function* () { return ({ userId: '42' }); }),
-    getOrCreateCurrentUserId: (email) => __awaiter(this, void 0, void 0, function* () { return ({ userId: '42' }); }),
+    lookupUser_sessionToken: (sessionToken) => __awaiter(this, void 0, void 0, function* () { return ({ userId: '42' }); }),
+    lookupUser_stripeEmail: (stripeEmail) => __awaiter(this, void 0, void 0, function* () { return ({ userId: '42' }); }),
 };
 exports.config = new server_config_1.ServerConfig(stripe_client_1.clientConfig, runtimeConfig);
 
@@ -356,33 +352,33 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const objects_1 = __webpack_require__(70);
 const hash_1 = __webpack_require__(270);
 class ClientConfig {
-    constructor(options, getUserToken) {
+    constructor(options) {
         this.options = options;
-        this.getUserToken = getUserToken;
         this.domain = '/';
         this.submit_route = 'api/stripe-checkout-submit';
         this.status_route_partial = 'api/stripe-checkout-status';
+        this.getSessionToken = this.options.getSessionToken;
+        this.getServerUrl_submit = () => {
+            return `${this.domain}${this.submit_route}`;
+        };
+        this.getServerUrl_status = (email, serverCheckoutId) => {
+            return `${this.domain}${this.status_route_partial}/${this.getEmailHash(email)}/${serverCheckoutId}`;
+        };
+        this.getEmailHash = (email) => {
+            return hash_1.hashEmail_partial(email);
+        };
+        this.getStripeChargeMetadata = (options) => {
+            return Object.assign({}, options.user, options.product);
+        };
+        this.getStripeChargeStatementDescriptor = (options) => {
+            return `${options.business.statementDescriptor} ${options.product.statementDescriptor}`.substr(0, 22);
+        };
+        this.getStripeChargeStatementDescriptor_subscription = (options) => {
+            return `${options.business.statementDescriptor} ${options.product.statementDescriptor_subscription}`.substr(0, 22);
+        };
         objects_1.assignPartial(this, options);
     }
     get status_route() { return `${this.status_route_partial}/{emailHash}/{serverCheckoutId}`; }
-    getSubmitTokenUrl() {
-        return `${this.domain}${this.submit_route}`;
-    }
-    getCheckoutStatusUrl(email, serverCheckoutId) {
-        return `${this.domain}${this.status_route_partial}/${this.getEmailHash(email)}/${serverCheckoutId}`;
-    }
-    getEmailHash(email) {
-        return hash_1.hashEmail_partial(email);
-    }
-    getStripeChargeMetadata(options) {
-        return Object.assign({}, options.user, options.product);
-    }
-    getStripeChargeStatementDescriptor(options) {
-        return `${options.business.statementDescriptor} ${options.product.statementDescriptor}`.substr(0, 22);
-    }
-    getStripeChargeStatementDescriptor_subscription(options) {
-        return `${options.business.statementDescriptor} ${options.product.statementDescriptor_subscription}`.substr(0, 22);
-    }
 }
 exports.ClientConfig = ClientConfig;
 

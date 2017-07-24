@@ -79852,11 +79852,6 @@ exports.processQueueTrigger = function_builder_1.createTrigger({
     serverCheckoutId: '',
 });
 exports.statusHttpTrigger = exports.processQueueTrigger;
-var GetUserResultError;
-(function (GetUserResultError) {
-    GetUserResultError["NoError"] = "";
-    GetUserResultError["EmailBelongsToAnotherUser_RequireLogin"] = "EmailBelongsToAnotherUser_RequireLogin";
-})(GetUserResultError = exports.GetUserResultError || (exports.GetUserResultError = {}));
 class ServerConfig {
     constructor(clientConfig, runtimeConfig, stripeSecretKey_AppSettingName = 'STRIPE_SECRET_KEY', stripeWebhookSigningSecret_AppSettingName = 'STRIPE_WEBHOOK_SIGNING_SECRET') {
         this.clientConfig = clientConfig;
@@ -79950,7 +79945,8 @@ exports.clientConfig = new client_config_1.ClientConfig({
             allowRememberMe: true
         },
     },
-}, () => __awaiter(this, void 0, void 0, function* () { return ({ userToken: 'userToken42' }); }));
+    getSessionToken: () => __awaiter(this, void 0, void 0, function* () { return ({ sessionToken: 'userToken42' }); }),
+});
 
 
 /***/ }),
@@ -80139,8 +80135,8 @@ const stripe_client_1 = __webpack_require__(257);
 const execute_stripe_checkout_1 = __webpack_require__(271);
 const runtimeConfig = {
     executeRequest: execute_stripe_checkout_1.executeRequest,
-    lookupUserByUserToken: (token) => __awaiter(this, void 0, void 0, function* () { return ({ userId: '42' }); }),
-    getOrCreateCurrentUserId: (email) => __awaiter(this, void 0, void 0, function* () { return ({ userId: '42' }); }),
+    lookupUser_sessionToken: (sessionToken) => __awaiter(this, void 0, void 0, function* () { return ({ userId: '42' }); }),
+    lookupUser_stripeEmail: (stripeEmail) => __awaiter(this, void 0, void 0, function* () { return ({ userId: '42' }); }),
 };
 exports.config = new server_config_1.ServerConfig(stripe_client_1.clientConfig, runtimeConfig);
 
@@ -80155,33 +80151,33 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const objects_1 = __webpack_require__(70);
 const hash_1 = __webpack_require__(270);
 class ClientConfig {
-    constructor(options, getUserToken) {
+    constructor(options) {
         this.options = options;
-        this.getUserToken = getUserToken;
         this.domain = '/';
         this.submit_route = 'api/stripe-checkout-submit';
         this.status_route_partial = 'api/stripe-checkout-status';
+        this.getSessionToken = this.options.getSessionToken;
+        this.getServerUrl_submit = () => {
+            return `${this.domain}${this.submit_route}`;
+        };
+        this.getServerUrl_status = (email, serverCheckoutId) => {
+            return `${this.domain}${this.status_route_partial}/${this.getEmailHash(email)}/${serverCheckoutId}`;
+        };
+        this.getEmailHash = (email) => {
+            return hash_1.hashEmail_partial(email);
+        };
+        this.getStripeChargeMetadata = (options) => {
+            return Object.assign({}, options.user, options.product);
+        };
+        this.getStripeChargeStatementDescriptor = (options) => {
+            return `${options.business.statementDescriptor} ${options.product.statementDescriptor}`.substr(0, 22);
+        };
+        this.getStripeChargeStatementDescriptor_subscription = (options) => {
+            return `${options.business.statementDescriptor} ${options.product.statementDescriptor_subscription}`.substr(0, 22);
+        };
         objects_1.assignPartial(this, options);
     }
     get status_route() { return `${this.status_route_partial}/{emailHash}/{serverCheckoutId}`; }
-    getSubmitTokenUrl() {
-        return `${this.domain}${this.submit_route}`;
-    }
-    getCheckoutStatusUrl(email, serverCheckoutId) {
-        return `${this.domain}${this.status_route_partial}/${this.getEmailHash(email)}/${serverCheckoutId}`;
-    }
-    getEmailHash(email) {
-        return hash_1.hashEmail_partial(email);
-    }
-    getStripeChargeMetadata(options) {
-        return Object.assign({}, options.user, options.product);
-    }
-    getStripeChargeStatementDescriptor(options) {
-        return `${options.business.statementDescriptor} ${options.product.statementDescriptor}`.substr(0, 22);
-    }
-    getStripeChargeStatementDescriptor_subscription(options) {
-        return `${options.business.statementDescriptor} ${options.product.statementDescriptor_subscription}`.substr(0, 22);
-    }
 }
 exports.ClientConfig = ClientConfig;
 
@@ -80268,14 +80264,26 @@ var CheckoutStatus;
     CheckoutStatus["Submitted"] = "Submitted";
     // The payment was rejected by the server (and not Queued)
     CheckoutStatus["Submission_Failed"] = "Submission_Failed";
-    // The Submission Requires User Login with the Stripe Email
-    CheckoutStatus["Submission_Rejected_LoginAndResubmit"] = "Submission_Rejected_LoginAndResubmit";
+    // The Submission Requires User Action to Proceed
+    CheckoutStatus["Submission_Paused"] = "Submission_Paused";
 })(CheckoutStatus = exports.CheckoutStatus || (exports.CheckoutStatus = {}));
+var CheckoutPausedReason;
+(function (CheckoutPausedReason) {
+    CheckoutPausedReason["None"] = "";
+    // The Submission Requires User Login with the Stripe Email
+    CheckoutPausedReason["EmailBelongsToAccount_LoginAndResubmit"] = "EmailBelongsToAccount_LoginAndResubmit";
+    // User Id could not be found by provided Session Id: Make sure to request Session before submission
+    CheckoutPausedReason["SessionNotFound_CreateNewSession"] = "SessionNotFound_CreateNewSession";
+    // Email was Found, but Belongs to a Different User -> Login to Correct Account
+    CheckoutPausedReason["EmailBelongsToOtherUser_LoginToCorrectAccount"] = "EmailBelongsToOtherUser_LoginToCorrectAccount";
+    // Unknown Error Failed to Verify User
+    CheckoutPausedReason["UnknownUserError_CreateNewSession"] = "UnknownUserError_CreateNewSession";
+})(CheckoutPausedReason = exports.CheckoutPausedReason || (exports.CheckoutPausedReason = {}));
 var PaymentStatus;
 (function (PaymentStatus) {
     PaymentStatus["NotStarted"] = "NotStarted";
     PaymentStatus["Processing"] = "Processing";
-    PaymentStatus["Paused"] = "Paused";
+    // Paused = 'Paused',
     PaymentStatus["PaymentSuceeded"] = "PaymentSuceeded";
     PaymentStatus["PaymentFailed"] = "PaymentFailed";
     // Payment Refunded or Disputed
@@ -81442,9 +81450,9 @@ exports.runFunction = function_builder_1.build_runFunction_common(buildFunction,
             return context.done({ message: 'saveData FAILED', error });
         }
     });
-    // Restart the process only if the user required login
+    // Restart the process only if the process had been paused
     if (context.bindings.inStripeCheckoutTable) {
-        if (context.bindings.inStripeCheckoutTable.checkoutStatus === checkout_types_1.CheckoutStatus.Submission_Rejected_LoginAndResubmit) {
+        if (context.bindings.inStripeCheckoutTable.checkoutStatus === checkout_types_1.CheckoutStatus.Submission_Paused) {
             // Continue
             yield saveData({
                 checkoutStatus: checkout_types_1.CheckoutStatus.Submitted,
@@ -81467,6 +81475,42 @@ exports.runFunction = function_builder_1.build_runFunction_common(buildFunction,
     const stripe = exports.deps.Stripe(config.getStripeSecretKey());
     let customer = null;
     let userId = null;
+    // Verify the user owns the stripe email (has authority over that stripe email)
+    try {
+        // A user will always have a sessionToken and userId (even anonymous users - this is done immediately upon page load)
+        const userBySessionToken = yield config.runtime.lookupUser_sessionToken(q.request.sessionToken);
+        const ownerOfStripeEmail = yield config.runtime.lookupUser_stripeEmail(q.request.token.email);
+        if (!userBySessionToken) {
+            yield saveData({
+                checkoutStatus: checkout_types_1.CheckoutStatus.Submission_Paused,
+                checkoutPausedReason: checkout_types_1.CheckoutPausedReason.SessionNotFound_CreateNewSession
+            });
+            return context.done({ error: 'Session User Not Found', q });
+        }
+        else if (userBySessionToken.isAnonymousUser && ownerOfStripeEmail) {
+            yield saveData({
+                checkoutStatus: checkout_types_1.CheckoutStatus.Submission_Paused,
+                checkoutPausedReason: checkout_types_1.CheckoutPausedReason.EmailBelongsToAccount_LoginAndResubmit
+            });
+            return context.done({ error: 'User Requires Login', q });
+        }
+        else if (userBySessionToken.userId !== ownerOfStripeEmail.userId) {
+            yield saveData({
+                checkoutStatus: checkout_types_1.CheckoutStatus.Submission_Paused,
+                checkoutPausedReason: checkout_types_1.CheckoutPausedReason.EmailBelongsToOtherUser_LoginToCorrectAccount
+            });
+            return context.done({ error: 'User does not own the email', q });
+        }
+        userId = userBySessionToken.userId;
+    }
+    catch (err) {
+        yield saveData({
+            checkoutStatus: checkout_types_1.CheckoutStatus.Submission_Paused,
+            checkoutPausedReason: checkout_types_1.CheckoutPausedReason.UnknownUserError_CreateNewSession,
+            error: err
+        });
+        return context.done({ error: 'User does not own the email', q });
+    }
     try {
         // Execute Charge With Stripe
         yield saveData({
@@ -81480,31 +81524,19 @@ exports.runFunction = function_builder_1.build_runFunction_common(buildFunction,
         // ? if !User && Customer => Unclaimed Customer (Previous Payment with No User Account Attached) => New User => Attach to User
         // ? if User && Customer => Verify User is Correct => Existing Customer
         if (!customerLookup && !userLookup) {
-            // Create Customer and User
+            // Create Customer with Stripe
             const newCustomer = yield stripe.customers.create({
                 source: q.request.token.id,
                 email: q.request.token.email,
             });
             customer = newCustomer;
-            const userResult = yield config.runtime.getOrCreateCurrentUserId(q.request.token.email);
-            if (userResult.error) {
-                if (userResult.error === server_config_1.GetUserResultError.EmailBelongsToAnotherUser_RequireLogin) {
-                    yield saveData({
-                        checkoutStatus: checkout_types_1.CheckoutStatus.Submission_Rejected_LoginAndResubmit,
-                        paymentStatus: checkout_types_1.PaymentStatus.Paused,
-                    });
-                    return context.done({ error: 'User Requires Login', q, userResult });
-                }
-                return context.done({ error: 'Unknown User Error', q, userResult });
-            }
-            userId = userResult.userId;
             // Save
             context.bindings.outStripeCustomerLookupTable = { customerId: customer.id };
             context.bindings.outStripeUserLookupTable = { userId };
         }
         else if (customerLookup && userLookup) {
             // Existing User
-            const userResult = yield config.runtime.getOrCreateCurrentUserId(q.request.token.email);
+            const userResult = yield config.runtime.lookupUser_sessionToken(q.request.token.email);
             if (userResult.userId !== userLookup.userId) {
                 throw 'User Lookup found a Different User than the Logged in User';
             }
